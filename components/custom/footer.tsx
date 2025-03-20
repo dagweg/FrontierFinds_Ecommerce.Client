@@ -1,27 +1,19 @@
 import Title from "@/components/custom/title";
+import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 function Footer({ className }: Readonly<{ className?: string }>) {
   return (
-    <div className="bg-neutral-200 ">
+    <div className="border-2 m-2 mb-0 rounded-3xl rounded-b-none">
       <div
-        className={`w-full h-[200px] grid grid-cols-3 grid-rows-1 gap-5 p-5 max-w-6xl mx-auto ${className}`}
+        className={`w-full h-fit flex justify-center gap-20 my-1  mx-auto ${className}`}
       >
-        <div>
-          <Title text="Frontier Finds" tag="h1" />
-          <p>Get the best and latest finds on the internet.</p>
-        </div>
-        <div>
-          <Title text="Quick Links" tag="h1" />
-          <ul>
-            <li>Home</li>
-            <li>About</li>
-            <li>Contact</li>
-          </ul>
-        </div>
-        <div>
-          <Title text="Newsletter" tag="h1" />
-          <p>Sign up to get the latest finds.</p>
+        <div className="text-center space-y-1 text-[0.7vw]">
+          <p>
+            Frontier Finds&reg;, an Ethiopian company. All rights reserved
+            &copy; {new Date().getFullYear()}
+          </p>
         </div>
       </div>
     </div>

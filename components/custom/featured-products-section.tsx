@@ -1,79 +1,155 @@
 import Carousel from "@/components/custom/carousel";
-import ProductCard, { Product } from "@/components/custom/product-card";
+import ProductCard from "@/components/custom/product-card";
 import Title from "@/components/custom/title";
 import { AuroraBackground } from "@/components/ui/aurora-background";
+import { ProductResult } from "@/types/product.types";
 import { motion } from "framer-motion";
 import React from "react";
 
 function FeaturedProductsSection() {
-  const mockProducts: Product[] = [
+  const mockProducts: ProductResult[] = [
     {
-      id: 1,
-      name: "Laptop Model X",
-      price: 1200.0,
-      description: "High-performance laptop for professionals and gamers.",
-      imageSrc: "/images/laptop1.jpg",
-      detailsUrl: "/products/laptop-x",
+      productId: "prod-001",
+      productName: "Smartphone X100",
+      productDescription:
+        "Latest smartphone with advanced camera and long battery life.",
+      stockQuantity: 50,
+      priceValueInCents: 69999,
+      priceCurrency: "USD",
+      images: {
+        thumbnail: {
+          url: "https://example.com/images/smartphone-x100-thumb.jpg",
+        },
+        leftImage: {
+          url: "https://example.com/images/smartphone-x100-left.jpg",
+        },
+        rightImage: {
+          url: "https://example.com/images/smartphone-x100-right.jpg",
+        },
+        frontImage: {
+          url: "https://example.com/images/smartphone-x100-front.jpg",
+        },
+        backImage: {
+          url: "https://example.com/images/smartphone-x100-back.jpg",
+        },
+        topImage: { url: "https://example.com/images/smartphone-x100-top.jpg" },
+        bottomImage: {
+          url: "https://example.com/images/smartphone-x100-bottom.jpg",
+        },
+      },
+      tags: [{ id: "electronics", name: "Electronics" }],
+      sellerId: "seller123",
     },
     {
-      id: 2,
-      name: "Ergonomic Mouse Pro",
-      price: 45.99,
-      description: "Comfortable and precise mouse for extended use.",
-      imageSrc: "/images/mouse1.jpg",
-      detailsUrl: "/products/mouse-pro",
+      productId: "prod-002",
+      productName: "4K Ultra HD TV",
+      productDescription:
+        "Experience stunning visuals with this 4K Ultra HD television.",
+      stockQuantity: 20,
+      priceValueInCents: 129999,
+      priceCurrency: "USD",
+      images: {
+        thumbnail: { url: "https://example.com/images/4k-tv-thumb.jpg" },
+        leftImage: { url: "https://example.com/images/4k-tv-left.jpg" },
+        rightImage: { url: "https://example.com/images/4k-tv-right.jpg" },
+        frontImage: { url: "https://example.com/images/4k-tv-front.jpg" },
+        backImage: { url: "https://example.com/images/4k-tv-back.jpg" },
+        topImage: { url: "https://example.com/images/4k-tv-top.jpg" },
+        bottomImage: { url: "https://example.com/images/4k-tv-bottom.jpg" },
+      },
+      tags: [{ id: "electronics", name: "Electronics" }],
+      sellerId: "seller456",
     },
     {
-      id: 3,
-      name: "Wireless Keyboard Elite",
-      price: 89.5,
-      description: "Mechanical keyboard with customizable RGB lighting.",
-      imageSrc: "/images/keyboard1.jpg",
-      detailsUrl: "/products/keyboard-elite",
+      productId: "prod-003",
+      productName: "Men's Casual Shirt",
+      productDescription:
+        "Comfortable and stylish casual shirt for everyday wear.",
+      stockQuantity: 100,
+      priceValueInCents: 2999,
+      priceCurrency: "USD",
+      images: {
+        thumbnail: { url: "https://example.com/images/casual-shirt-thumb.jpg" },
+        leftImage: null,
+        rightImage: null,
+        frontImage: {
+          url: "https://example.com/images/casual-shirt-front.jpg",
+        },
+        backImage: { url: "https://example.com/images/casual-shirt-back.jpg" },
+        topImage: null,
+        bottomImage: null,
+      },
+      tags: [{ id: "clothing", name: "Clothing" }],
+      sellerId: "seller789",
     },
     {
-      id: 4,
-      name: "Gaming Headset 7.1",
-      price: 75.0,
-      description: "Immersive 7.1 surround sound gaming headset.",
-      imageSrc: "/images/headset1.jpg",
-      detailsUrl: "/products/headset-7-1",
+      productId: "prod-004",
+      productName: "Women's Summer Dress",
+      productDescription:
+        "Lightweight summer dress perfect for sunny days and events.",
+      stockQuantity: 80,
+      priceValueInCents: 4599,
+      priceCurrency: "USD",
+      images: {
+        thumbnail: { url: "https://example.com/images/summer-dress-thumb.jpg" },
+        leftImage: { url: "https://example.com/images/summer-dress-left.jpg" },
+        rightImage: {
+          url: "https://example.com/images/summer-dress-right.jpg",
+        },
+        frontImage: {
+          url: "https://example.com/images/summer-dress-front.jpg",
+        },
+        backImage: { url: "https://example.com/images/summer-dress-back.jpg" },
+        topImage: null,
+        bottomImage: null,
+      },
+      tags: [{ id: "clothing", name: "Clothing" }],
+      sellerId: "seller789",
     },
     {
-      id: 5,
-      name: "UltraWide Monitor",
-      price: 350.0,
-      description: "34-inch ultrawide monitor for enhanced productivity.",
-      imageSrc: "/images/monitor1.jpg",
-      detailsUrl: "/products/ultrawide-monitor",
+      productId: "prod-005",
+      productName: "Mystery Novel: The Hidden Truth",
+      productDescription:
+        "A gripping mystery novel that will keep you on the edge of your seat.",
+      stockQuantity: 150,
+      priceValueInCents: 1599,
+      priceCurrency: "USD",
+      images: {
+        thumbnail: {
+          url: "https://example.com/images/mystery-novel-thumb.jpg",
+        },
+        leftImage: null,
+        rightImage: null,
+        frontImage: {
+          url: "https://example.com/images/mystery-novel-front.jpg",
+        },
+        backImage: null,
+        topImage: null,
+        bottomImage: null,
+      },
+      tags: [{ id: "books", name: "Books" }],
+      sellerId: "seller321",
     },
     {
-      id: 6,
-      name: "VR Headset Pro",
-      price: 499.0,
-      description:
-        "Next-gen virtual reality headset for immersive experiences.",
-      imageSrc: "/images/vr-headset.jpg",
-      detailsUrl: "/products/vr-headset-pro",
+      productId: "prod-006",
+      productName: "Science Fiction Epic",
+      productDescription:
+        "An award-winning science fiction novel full of adventure and intrigue.",
+      stockQuantity: 120,
+      priceValueInCents: 1899,
+      priceCurrency: "USD",
+      images: {
+        thumbnail: { url: "https://example.com/images/scifi-novel-thumb.jpg" },
+        leftImage: { url: "https://example.com/images/scifi-novel-left.jpg" },
+        rightImage: { url: "https://example.com/images/scifi-novel-right.jpg" },
+        frontImage: { url: "https://example.com/images/scifi-novel-front.jpg" },
+        backImage: { url: "https://example.com/images/scifi-novel-back.jpg" },
+        topImage: null,
+        bottomImage: null,
+      },
+      tags: [{ id: "books", name: "Books" }],
+      sellerId: "seller321",
     },
-    {
-      id: 7,
-      name: "Smartwatch Fitness",
-      price: 199.99,
-      description:
-        "Advanced smartwatch with fitness tracking and notifications.",
-      imageSrc: "/images/smartwatch.jpg",
-      detailsUrl: "/products/smartwatch-fitness",
-    },
-    {
-      id: 8,
-      name: "Bluetooth Speaker Portable",
-      price: 59.0,
-      description: "Compact and powerful portable Bluetooth speaker.",
-      imageSrc: "/images/speaker.jpg",
-      detailsUrl: "/products/bluetooth-speaker",
-    },
-    // Add more mock products as needed
   ];
 
   return (
@@ -95,45 +171,18 @@ function FeaturedProductsSection() {
               <div className=" p-1 text-center h-full">
                 <Title text="Top Laptops" tag="h2" className="text-xl mb-3" />
                 <div className="grid grid-cols-3 gap-4">
-                  <ProductCard product={mockProducts[0]} />
-                  <ProductCard product={mockProducts[1]} />
-                  <ProductCard product={mockProducts[1]} />
-                </div>
-              </div>
-              <div className=" p-1 text-center h-full">
-                <Title
-                  text="Essential Accessories"
-                  tag="h2"
-                  className="text-xl mb-3"
-                />
-                <div className="grid grid-cols-3 gap-4">
-                  <ProductCard product={mockProducts[2]} />
-                  <ProductCard product={mockProducts[3]} />
-                  <ProductCard product={mockProducts[3]} />
-                </div>
-              </div>
-              <div className=" p-1 text-center h-full">
-                <Title
-                  text="Immersive Experiences"
-                  tag="h2"
-                  className="text-xl mb-3"
-                />
-                <div className="grid grid-cols-3 gap-4">
-                  <ProductCard product={mockProducts[4]} />
-                  <ProductCard product={mockProducts[5]} />
-                  <ProductCard product={mockProducts[5]} />
-                </div>
-              </div>
-              <div className=" p-1 text-center h-full">
-                <Title
-                  text="Wearable Tech & Audio"
-                  tag="h2"
-                  className="text-xl mb-3"
-                />
-                <div className="grid grid-cols-3 gap-4">
-                  <ProductCard product={mockProducts[6]} />
-                  <ProductCard product={mockProducts[7]} />
-                  <ProductCard product={mockProducts[7]} />
+                  <ProductCard
+                    key={mockProducts[0].productId}
+                    productResult={mockProducts[0]}
+                  />
+                  <ProductCard
+                    key={mockProducts[1].productId}
+                    productResult={mockProducts[1]}
+                  />
+                  <ProductCard
+                    key={`${mockProducts[1].productId}-duplicate`}
+                    productResult={mockProducts[1]}
+                  />
                 </div>
               </div>
             </Carousel>
