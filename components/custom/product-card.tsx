@@ -1,15 +1,22 @@
+"use client";
+
 // components/ProductCard.tsx
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
 import { Star, StarsIcon } from "lucide-react";
-import { ProductResult } from "@/types/cart.types";
+import { ProductResult } from "@/types/product.types";
+import { Skeleton } from "@/components/ui/skeleton";
+import { usePathname, useRouter } from "next/navigation";
 
 const ProductCard: React.FC<{
   productResult: ProductResult;
-  variant: "compact" | "full";
+  variant?: "compact" | "full";
 }> = ({ productResult, variant = "compact" }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+
   const handleAddToCart = () => {
     console.log(
       `Product "${name}" added to cart (ID: ${productResult.productId})`
@@ -20,7 +27,7 @@ const ProductCard: React.FC<{
   return (
     <div
       className={clsx({
-        "cursor-pointer overflow-hidden relative   rounded-3xl border-[1px]  border-neutral-100 hover:border-[1px] hover:border-neutral-300 active:ring-4 ring-neutral-200   duration-100 hover:rounded-3xl mx-auto  p-4 group":
+        "cursor-pointer overflow-hidden relative   rounded-3xl border-[1px]  border-neutral-100 hover:border-[1px] hover:shadow-lg hover:border-neutral-300 active:ring-4 ring-neutral-200   duration-100 hover:rounded-3xl mx-auto  p-4 group":
           true,
         "w-full h-60 flex items-end": variant === "full",
         "max-w-sm h-96": variant === "compact",
@@ -44,12 +51,12 @@ const ProductCard: React.FC<{
       ></Image>
       {/* <div className=" w-full h-full top-0 left-0 transition duration-300 group-hover/card:bg-neutral-100 bg-neutral-200  opacity-60"></div> */}
       <div className="text content relative z-10 p-4 flex flex-col ">
-        <Link
-          href={`/store/${name}`}
+        <div
+          onClick={() => router.push(`${pathname}/${productResult.slug}`)}
           className="font-bold text-xl md:text-2xl text-black hover:text-blue-800"
         >
           {productResult.productName}
-        </Link>
+        </div>
         <div className="flex items-center gap-1">
           {Array(5)
             .fill(0)
@@ -69,3 +76,38 @@ const ProductCard: React.FC<{
 };
 
 export default ProductCard;
+
+export const ProductCardLoader = ({
+  variant,
+}: {
+  variant: "compact" | "full";
+}) => {
+  return (
+    <Skeleton
+      className={clsx({
+        "bg-neutral-100 rounded-3xl": true,
+        "w-full h-60 flex items-end ": variant === "full",
+        "max-w-sm h-96": variant === "compact",
+      })}
+    >
+      <div className="h-full flex items-center ">
+        <Skeleton
+          className={clsx({
+            "aspect-square bg-neutral-200 h-[200px] m-3 rounded-3xl": true,
+            "mx-auto  ": variant === "compact",
+          })}
+        />
+      </div>
+      <div className="text content relative z-10 p-4 flex flex-col w-full gap-3">
+        <Skeleton className="w-[300px] h-4" />
+        <div className="inline-flex gap-2">
+          <Skeleton className=" w-[100px] h-4" />
+          <Skeleton className=" w-[100px] h-4" />
+        </div>
+        <Skeleton className="w-[450px] h-4" />
+        <Skeleton className="w-[700px] h-4" />
+        <Skeleton className="w-[50px] h-4" />
+      </div>
+    </Skeleton>
+  );
+};
