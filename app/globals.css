@@ -79,3 +79,55 @@
     @apply bg-background text-foreground;
   }
 }
+
+::-webkit-scrollbar {
+  width: 7px; /* Width of the vertical scrollbar */
+  height: 12px; /* Height of the horizontal scrollbar */
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Background of the track */
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888; /* Color of the scroll thumb */
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Darker color on hover */
+}
+
+/* Hide scrollbar for Chrome, Safari and Edge */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for Firefox */
+.scrollbar-hide {
+  scrollbar-width: none;
+}
+
+/* Hide horizontal scrollbar for Chrome, Safari and Edge */
+.scrollbar-hide-x::-webkit-scrollbar {
+  width: 0; /* affects vertical scrollbar */
+  height: 0; /* affects horizontal scrollbar */
+}
+
+/* Hide horizontal scrollbar for Firefox */
+.scrollbar-hide-x {
+  scrollbar-width: none; /* Firefox doesn't distinguish x/y, this hides both */
+  overflow-x: hidden; /* Helps ensure horizontal scrolling is disabled */
+}
+
+/* Hide vertical scrollbar for Chrome, Safari and Edge */
+.scrollbar-hide-y::-webkit-scrollbar {
+  width: 0; /* affects vertical scrollbar */
+  height: 0; /* affects horizontal scrollbar */
+}
+
+/* Hide vertical scrollbar for Firefox */
+.scrollbar-hide-y {
+  scrollbar-width: none; /* Firefox doesn't distinguish x/y, this hides both */
+  overflow-y: hidden; /* Helps ensure vertical scrolling is disabled */
+}
