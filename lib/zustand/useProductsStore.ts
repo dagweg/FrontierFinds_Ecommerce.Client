@@ -1,35 +1,83 @@
-import { ProductResult } from "@/types/cart.types";
+import {
+  CategoryResult,
+  FilterProductsQuery,
+  ProductResult,
+  ProductsResult,
+} from "@/types/product.types";
 import { create } from "zustand";
 
 interface ProductsState {
-  totalCount: number;
-  fetchedCount: number;
-  products: ProductResult[];
+  // currentPage: number;
+  pageSize: number;
+  productsResult: ProductsResult;
+  // filterQuery: FilterProductsQuery;
+  categories: CategoryResult[];
+  setCategories: (categories: CategoryResult[]) => void;
+  isLoading: boolean;
+  setIsLoading: (isLoading: boolean) => void;
   addProduct: (product: ProductResult) => void;
   removeProduct: (id: string) => void;
   updateProduct: (updatedProduct: ProductResult) => void;
   setProducts: (products: ProductResult[]) => void;
-  setProductsStore: (store: any) => void;
+  setProductsResult: (store: ProductsResult) => void;
 }
 
 export const useProductsStore = create<ProductsState>((set) => ({
-  products: [],
-  totalCount: 0,
-  fetchedCount: 0,
-  addProduct: (product: ProductResult) =>
-    set((state) => ({ products: [...state.products, product] })),
-  removeProduct: (id: string) =>
+  // currentPage: 1,
+  pageSize: 10,
+  productsResult: {
+    totalCount: 0,
+    totalFetchedCount: 0,
+    products: [],
+  },
+  categories: [],
+  setCategories: (categories) =>
     set((state) => ({
-      products: state.products.filter((product) => product.productId !== id),
+      ...state,
+      categories,
     })),
-  updateProduct: (updatedProduct: ProductResult) =>
+  isLoading: true,
+  setIsLoading: (isLoading) =>
     set((state) => ({
-      products: state.products.map((product) =>
-        product.productId === updatedProduct.productId
-          ? updatedProduct
-          : product
-      ),
+      ...state,
+      isLoading,
     })),
-  setProducts: (products: ProductResult[]) => set({ products }),
-  setProductsStore: (store) => set(store),
+  addProduct: (product) =>
+    set((state) => ({
+      productsResult: {
+        ...state.productsResult,
+        products: [...state.productsResult.products, product],
+      },
+    })),
+  removeProduct: (id) =>
+    set((state) => ({
+      productsResult: {
+        ...state.productsResult,
+        products: state.productsResult.products.filter(
+          (product) => product.productId !== id
+        ),
+      },
+    })),
+  updateProduct: (updatedProduct) =>
+    set((state) => ({
+      productsResult: {
+        ...state.productsResult,
+        products: state.productsResult.products.map((product) =>
+          product.productId === updatedProduct.productId
+            ? updatedProduct
+            : product
+        ),
+      },
+    })),
+  setProducts: (products) =>
+    set((state) => ({
+      productsResult: {
+        ...state.productsResult,
+        products,
+      },
+    })),
+  setProductsResult: (result) =>
+    set(() => ({
+      productsResult: result,
+    })),
 }));
