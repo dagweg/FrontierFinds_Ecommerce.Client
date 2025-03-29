@@ -12,6 +12,12 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        josefinSans: ["Josefin Sans", "sans-serif"],
+        geist: ["Geist", "sans-serif"],
+        scopeOne: ["Scope One", "sans-serif"],
+        platypi: ["Platypi", "sans-serif"],
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

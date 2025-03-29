@@ -18,6 +18,7 @@ const postLoginPaths: Path[] = [
   "/products",
   "/cart",
   "/checkout",
+  "/store/:path*",
 ];
 export const unprotectedPaths: Path[] = [
   "/store",
@@ -33,10 +34,13 @@ export let config = {
     "/cart",
     "/checkout",
     "/store",
+    "/store/:path*",
     "/",
   ],
 };
 
+const signInUrl = (path: string) =>
+  `/accounts/signin?callbackUrl=${encodeURIComponent(path)}`;
 /**
  * Matches a path exactly against an array of patterns (no wildcards).
  * @param path - The path to match.
@@ -48,20 +52,9 @@ const matchPath = (path: string, patterns: Path[]): boolean => {
 };
 
 export async function middleware(request: NextRequest): Promise<NextResponse> {
-  console.log("CLIENT URL:", clientUrl);
-  console.log("API URL:", apiUrl);
-
   const path = request.nextUrl.pathname;
   const headers = new Headers(request.headers);
   headers.set("x-current-path", path);
-
-  // Allow unprotected paths without authorization
-  if (matchPath(path, unprotectedPaths)) {
-    return NextResponse.next({ headers });
-  }
-
-  console.log(`Fetching auth from: ${clientUrl}/auth/authorize`);
-  console.log(`Cookies sent: ${request.headers.get("cookie") || "none"}`);
 
   const authRes = await fetch(`${apiUrl}/auth/authorize`, {
     credentials: "include",
@@ -73,22 +66,27 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   const isLoggedIn = authRes.ok;
   headers.set("x-is-logged-in", isLoggedIn.toString());
 
-  console.log(authRes.headers);
+  if (path.startsWith("/store/") && !isLoggedIn) {
+    return NextResponse.redirect(new URL(signInUrl(path), request.url));
+  }
+
+  // Allow unprotected paths without authorization
+  if (matchPath(path, unprotectedPaths)) {
+    return NextResponse.next({ headers });
+  }
 
   // --- Redirection Logic ---
   if (!isLoggedIn) {
     // Not logged in
-    console.log("Not logged in");
+
     if (matchPath(path, postLoginPaths)) {
       // Trying to access a post-login path, redirect to sign-in
-      const signInUrl = `/accounts/signin?callbackUrl=${encodeURIComponent(
-        path
-      )}`; // Optional: Add callback URL
-      return NextResponse.redirect(new URL(signInUrl, request.url));
+      // Optional: Add callback URL
+      return NextResponse.redirect(new URL(signInUrl(path), request.url));
     }
   } else {
     // Logged in
-    console.log("Logged in");
+
     if (matchPath(path, preLoginPaths)) {
       // Trying to access a pre-login path while logged in, redirect to homepage or profile
       return NextResponse.redirect(new URL("/", request.url)); // Redirect to homepage
