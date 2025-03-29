@@ -1,3 +1,4 @@
+import { IconStarFilled } from "@tabler/icons-react";
 import { StarIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -38,10 +39,10 @@ const RatingComponent: React.FC<RatingComponentProps> = ({
             className="sr-only"
             onChange={() => handleRatingClick(value)}
           />
-          <StarIcon
-            className={`h-6 w-6 transition-colors duration-200 ${
+          <IconStarFilled
+            className={`h-6 w-6 transition-colors duration-200  ${
               value <= (hoverRating || rating)
-                ? "fill-black "
+                ? "fill-orange-500 "
                 : "fill-gray-300 text-gray-300"
             }`}
           />

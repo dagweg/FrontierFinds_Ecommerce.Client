@@ -3,6 +3,7 @@ import Button from "@/components/custom/button";
 import { HoverBorderGradientButton } from "@/components/custom/hover-border-gradient-button";
 import { useSession } from "@/components/providers/session-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   Menubar,
   MenubarContent,
@@ -14,6 +15,8 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import { cn } from "@/lib/utils";
+import { useCartStore } from "@/lib/zustand/useCartStore";
 import { useProductsStore } from "@/lib/zustand/useProductsStore";
 import { IconBasket, IconBrowser } from "@tabler/icons-react";
 import { isPossibleNumber } from "libphonenumber-js";
@@ -32,11 +35,13 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, {
   ChangeEvent,
   ChangeEventHandler,
   KeyboardEvent,
+  useEffect,
+  useLayoutEffect,
   useState,
 } from "react";
 
@@ -44,10 +49,15 @@ function Navbar() {
   const router = useRouter();
 
   const productsStore = useProductsStore();
+  const cartStore = useCartStore();
+  const pathname = usePathname();
 
   const [query, setQuery] = useState<string>("");
 
-  const { isLoggedIn } = useSession();
+  const {
+    isLoggedIn,
+    userSessionInfo: { email, firstName, lastName },
+  } = useSession();
 
   const [avatarContext, setAvatarContext] = useState({
     isOpen: false,
@@ -65,32 +75,37 @@ function Navbar() {
 
       if (query.trim() === "") {
         params.delete("q");
-      } else params.set("q", query);
+      } else params.set("q", query.trim());
 
-      router.push(`store?${params.toString()}`);
+      router.push(`/store?${params.toString()}`);
     }
   };
 
+  useEffect(() => {
+    if (isLoggedIn) cartStore.initializeCart();
+  }, []);
+
   const handleSearchBoxChange = (e: ChangeEvent<HTMLInputElement>) => {
-    let q = e.target.value.trim();
+    let q = e.target.value;
 
     setQuery(q);
   };
 
   return (
-    <section className="bg-gray-100 sticky top-0 z-[50]">
-      <nav className="flex justify-between items-center p-4  mx-auto ">
+    <section className="border-b-2 bg-white sticky top-0 z-[50] h-[80px]">
+      <nav className="flex justify-between p-4  mx-auto h-full items-center">
         <Link
           href={"/"}
-          className="text-xl  font-bold dark:text-white text-center ml-4 focus:outline-none"
+          className="text-xl  font-bold dark:text-white text-center ml-4 focus:outline-none inline-flex items-center gap-3"
         >
           <Image
-            src={"/logo.png"}
+            src={"/favicon-main.png"}
             width={200}
             height={100}
             alt=""
-            className="rounded-sm invert-[0.04]"
+            className="rounded-sm  invert-[1] w-[50px]"
           />
+          <span className="font-platypi">Frontier Finds</span>
         </Link>
 
         <div className="flex justify-between  items-center relative w-fit  ">
@@ -102,23 +117,42 @@ function Navbar() {
               onChange={(e) => handleSearchBoxChange(e)}
               onKeyDown={(e) => handleSearchBoxSubmit(e)}
               placeholder={"Search Products"}
-              className="p-3 px-16 pl-[50px] border rounded-full w-[500px]"
+              className="p-3 px-16 pl-[50px] border rounded-full w-[500px]  focus:ring-2 ring-neutral-200  outline-neutral-400 ring-offset-0 outline-offset-[3px] duration-150"
             />
           </div>
         </div>
         <div className="flex justify-center items-center gap-5">
           <Link
             href={`/store`}
-            className="hover:bg-neutral-200 p-2 rounded-full"
+            className={cn(
+              " px-4 py-1 ",
+              pathname.includes("store") && "bg-neutral-100  rounded-full"
+            )}
           >
-            <StoreIcon />
+            Store
           </Link>
-          <Link
-            href={`/cart`}
-            className="hover:bg-neutral-200 p-2 rounded-full"
-          >
-            <ShoppingBasket />
-          </Link>
+          {isLoggedIn && (
+            <Link
+              href={`/cart`}
+              className={cn(
+                " px-4 py-1  flex items-center gap-2 relative",
+                pathname.includes("cart") && "bg-neutral-100  rounded-full"
+              )}
+            >
+              <span className="z-10">Cart</span>
+
+              <span
+                className={cn(
+                  !cartStore.isLoading && cartStore.cart.notSeenCount > 0
+                    ? "scale-[0.8]"
+                    : "scale-0",
+                  "bg-red-500 text-white rounded-full aspect-square p-1 w-6  h-6 flex items-center justify-center text-sm font-platypi absolute top-[-8px] right-[-5px] duration-100"
+                )}
+              >
+                {cartStore.cart.notSeenCount}
+              </span>
+            </Link>
+          )}
           {isLoggedIn ? (
             <>
               <div className="relative  ">
@@ -130,10 +164,18 @@ function Navbar() {
                         className="w-10 h-10 group-focus:ring-2 ring-neutral-200"
                       >
                         <AvatarImage src="https://github.com/shadcn.png" />
-                        <AvatarFallback>CN</AvatarFallback>
+                        <AvatarFallback>
+                          {firstName[0] + lastName[0]}
+                        </AvatarFallback>
                       </Avatar>
                     </MenubarTrigger>
                     <MenubarContent>
+                      <div className="w-full p-2 inline-flex flex-col text-sm">
+                        <span className="font-bold">
+                          {firstName + " " + lastName}
+                        </span>
+                        <span className="text-xs">{email}</span>
+                      </div>
                       <MenubarItem onClick={() => router.push("/my-products")}>
                         <div className="relative">
                           <LaptopMinimal size={15} />{" "}
@@ -159,6 +201,12 @@ function Navbar() {
                           <Settings size={15} />{" "}
                         </div>
                         Settings
+                      </MenubarItem>
+                      <MenubarItem onClick={() => router.push("/profile")}>
+                        <div className="relative">
+                          <User size={15} />{" "}
+                        </div>
+                        Profile
                       </MenubarItem>
                       <MenubarSeparator />
                       {/* <MenubarSub>

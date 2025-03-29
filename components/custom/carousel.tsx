@@ -18,15 +18,12 @@ const Carousel = ({
   const slidesCount = React.Children.count(children);
   const slideWidthPercentage = 100 / slidesPerView;
 
-  console.log("slidesPerView:", slidesPerView); // ADDED
-  console.log("slideWidthPercentage:", slideWidthPercentage); // ADDED
-
   const nextSlide = () => {
     if (isAnimating) return;
     setIsAnimating(true);
     setCurrentSlide((prevSlide) => {
       const next = (prevSlide + 1) % slidesCount;
-      console.log("nextSlide - currentSlide:", prevSlide, "next:", next); // ADDED
+
       return next;
     });
   };
@@ -36,7 +33,7 @@ const Carousel = ({
     setIsAnimating(true);
     setCurrentSlide((prevSlide) => {
       const prev = (prevSlide - 1 + slidesCount) % slidesCount;
-      console.log("prevSlide - currentSlide:", prevSlide, "prev:", prev); // ADDED
+
       return prev;
     });
   };
@@ -49,7 +46,6 @@ const Carousel = ({
   }, [currentSlide]);
 
   const transformValue = `translateX(-${currentSlide * slideWidthPercentage}%)`;
-  console.log("transformValue:", transformValue); // ADDED
 
   return (
     <div className={`relative w-full overflow-hidden ${className}`}>

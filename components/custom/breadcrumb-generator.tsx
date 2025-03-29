@@ -29,18 +29,22 @@ export function BreadcrumbGenerator() {
   const pathname = decodeURIComponent(usePathname());
   const segments = pathname.split("/").filter(Boolean); // Remove empty strings
 
-  if (segments.length <= 1) return <></>;
+  if (segments.length <= 1 || segments[0] === "profile") return <></>;
 
   const MakeReadable = (s: string) => {
-    return s
+    let res = s
       .trim()
       .split("-")
       .map((x) => capitalize(x))
       .join(" ");
+    if (res.length > 20) {
+      res = res.slice(0, 20) + "...";
+    }
+    return res;
   };
 
   return (
-    <Breadcrumb className="px-4 py-1 ">
+    <Breadcrumb className="px-4 py-1 bg-white">
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink href="/">Home</BreadcrumbLink>
