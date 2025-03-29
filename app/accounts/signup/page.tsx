@@ -18,11 +18,11 @@ export default function SignUp() {
   const router = useRouter();
   const { apiBaseUrl } = useEnvStore((state) => state);
 
-  const [firstName, setFirstName] = useState("John");
-  const [lastName, setLastName] = useState("Doe");
-  const [email, setEmail] = useState("dagtef@gmail.com");
-  const [password, setPassword] = useState("12345678@Aa");
-  const [confirmPassword, setConfirmPassword] = useState("12345678@Aa");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const { phoneNumber, setPhoneNumber, flagEmoji, handlePhoneNumberChange } =
     usePhoneNumber();
