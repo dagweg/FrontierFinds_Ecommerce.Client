@@ -1,5 +1,5 @@
 "use client";
-import page from "@/app/(unprotected)/page";
+import page from "@/app/page";
 import { PaginationGenerator } from "@/components/custom/pagination-generator";
 import ProductCard, {
   ProductCardLoader,
@@ -39,14 +39,9 @@ function MyProducts() {
       credentials: "include",
     }).then(async (r) => {
       const b = await r.json();
-      console.log(b);
+
       if (r.ok) {
-        productsStore.setProductsResult({
-          totalCount: b.totalCount,
-          totalFetchedCount: b.totalFetchedCount,
-          products: b.products,
-        });
-        console.log(productsStore);
+        productsStore.setProductsResult(b);
       }
       setTimeout(() => productsStore.setIsLoading(false), 300);
     });
@@ -116,7 +111,7 @@ function MyProducts() {
                 className="grayscale"
               />
               <Title
-                text="Sorry, we couldn't find any products that match your requirement."
+                text="You don't have any products listed. Get started by creating a listing."
                 className="font-normal"
               />
             </div>
