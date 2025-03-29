@@ -39,8 +39,7 @@ export let config = {
   ],
 };
 
-const signInUrl = (path: string) =>
-  `/accounts/signin?callbackUrl=${encodeURIComponent(path)}`;
+const signInUrl = () => `/accounts/signin`;
 /**
  * Matches a path exactly against an array of patterns (no wildcards).
  * @param path - The path to match.
@@ -67,7 +66,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   headers.set("x-is-logged-in", isLoggedIn.toString());
 
   if (path.startsWith("/store/") && !isLoggedIn) {
-    return NextResponse.redirect(new URL(signInUrl(path), request.url));
+    return NextResponse.redirect(new URL(signInUrl(), request.url));
   }
 
   // Allow unprotected paths without authorization
@@ -82,7 +81,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     if (matchPath(path, postLoginPaths)) {
       // Trying to access a post-login path, redirect to sign-in
       // Optional: Add callback URL
-      return NextResponse.redirect(new URL(signInUrl(path), request.url));
+      return NextResponse.redirect(new URL(signInUrl(), request.url));
     }
   } else {
     // Logged in
