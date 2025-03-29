@@ -38,6 +38,7 @@ function MyProduct() {
     sellerId: "",
     tags: [],
     averageRating: 0,
+    totalReviews: 0,
   });
 
   useLayoutEffect(() => {
@@ -47,7 +48,7 @@ function MyProduct() {
         credentials: "include",
       });
       const b = await r.json();
-      console.log(b);
+
       if (r.ok) {
         setProduct(b);
       } else if (r.status === 404) {
