@@ -49,10 +49,11 @@ import {
   CategoriesResult,
   CategoryResult,
   FilterProductsQuery,
+  ProductsResult,
 } from "@/types/product.types";
 import { Label } from "@/components/ui/label";
 import Button from "@/components/custom/button";
-import { CheckboxProps } from "@radix-ui/react-checkbox";
+import { CheckboxProps, CheckedState } from "@radix-ui/react-checkbox";
 import Image from "next/image";
 
 function Store() {
@@ -60,8 +61,6 @@ function Store() {
   const searchParam = useSearchParams();
 
   const productsStore = useProductsStore();
-
-  let filterSearchParams = new URLSearchParams();
 
   const [query, setQuery] = useState(searchParam.get("q"));
 
@@ -73,11 +72,23 @@ function Store() {
 
   const categoriesRef = useRef(null);
 
+  const minPrice = 0;
+  const maxPrice = productsStore.productsResult.maxPriceValueInCents / 100;
+
+  const [priceRange, setPriceRange] = useState([minPrice, maxPrice]);
+
   const [sideBar, setSideBar] = useState({
     isOpen: true,
   });
 
+  const [filterEnabledSet, setFilterEnabledSet] = useState({
+    price: false,
+  });
+
+  const isInitialMount = useRef(true);
+
   const handleCategoriesClear = () => {
+    router.push("/store");
     productsStore.setCategories(
       productsStore.categories?.map((c) => ({
         ...c,
@@ -112,11 +123,7 @@ function Store() {
         ) ?? [];
 
       allRelatedUnchecked = relatedCategories.every((x) => !x.checked);
-
-      console.log(productsStore.categories);
-      console.log(relatedCategories);
     }
-    console.log(allRelatedUnchecked);
 
     productsStore.setCategories(
       productsStore.categories?.map((c) => {
@@ -141,11 +148,16 @@ function Store() {
     );
   };
 
-  const handleApplyFilter = () => {
-    filterSearchParams = new URLSearchParams(searchParam);
+  const getFilterSearchParams = () => {
+    let filterSearchParams = new URLSearchParams();
 
     filterSearchParams.set("pageNumber", `${page}`);
     filterSearchParams.set("pageSize", `${productsStore.pageSize}`);
+
+    if (filterEnabledSet.price) {
+      filterSearchParams.set("minPriceValueInCents", `${priceRange[0] * 100}`);
+      filterSearchParams.set("maxPriceValueInCents", `${priceRange[1] * 100}`);
+    }
 
     var categoryIds = productsStore.categories?.flatMap((x) =>
       x.subCategories.filter((y) => y.checked).map((y) => y.id)
@@ -154,81 +166,106 @@ function Store() {
       filterSearchParams.append("categoryIds", `${id}`)
     );
 
-    console.log(categoryIds);
-
-    router.push(`?${filterSearchParams.toString()}`);
-
-    // fetchProducts(filterSearchParams);
+    return filterSearchParams;
   };
 
-  const fetchProducts = (searchParams: URLSearchParams) => {
+  const handleApplyFilter = () => {
+    fetchProducts(getFilterSearchParams());
+  };
+
+  const fetchProducts = (searchParams?: URLSearchParams) => {
     productsStore.setIsLoading(true);
     // ?pageNumber=${page}&pageSize=${productsStore.pageSize}
-    fetch(`${apiBaseUrl}/products/filter?${searchParams.toString()}`, {
+    console.log(searchParams?.toString());
+    fetch(`${apiBaseUrl}/products/filter?${searchParams?.toString()}`, {
       method: "GET",
       credentials: "include",
     }).then(async (r) => {
-      const b = await r.json();
-      console.log(b);
+      const b: ProductsResult = await r.json();
+
       if (r.ok) {
-        productsStore.setProductsResult({
-          totalCount: b.totalCount,
-          totalFetchedCount: b.totalFetchedCount,
-          products: b.products,
-        });
-        console.log(productsStore);
+        productsStore.setProductsResult(b);
+        if (b.totalCount <= productsStore.pageSize) setPage(1);
       }
       setTimeout(() => productsStore.setIsLoading(false), 300);
     });
   };
 
   useEffect(() => {
-    const params = new URLSearchParams({
-      pageNumber: `${page}`,
-      pageSize: `${productsStore.pageSize}`,
-    });
-    if (query !== null) params.set("name", query);
-    fetchProducts(params);
-
     fetch(`${apiBaseUrl}/products/categories`, {
       method: "GET",
       credentials: "include",
     }).then(async (r) => {
       const b = await r.json();
-      console.log(b.categories);
+
       if (r.ok) {
         productsStore.setCategories(b.categories);
       }
     });
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    const q = searchParam.get("q");
+    setQuery(q);
+    let params = getFilterSearchParams();
+    if (q !== null) params.set("name", q);
+    console.log(params.entries().toArray());
+    fetchProducts(params);
   }, [page, searchParam]);
 
   return (
-    <div className="p-4 min-h-screen ">
-      <section id="#main-content" className="flex gap-8 relative">
+    <div className="p-4 min-h-screen bg-neutral-100">
+      <section id="#" className="flex">
         <section
           className={cn(
-            "   scrollbar-hide border sticky  top-0    flex gap-2 z-10",
+            "   scrollbar-hide flex gap-2 z-10 relative ",
             sideBar.isOpen &&
-              "w-[250px] absolute md:relative md:left-0 shadow-2xl"
+              "w-[250px] sticky max-h-screen h-fit  top-[105px]  md:left-0 "
           )}
         >
           <div
             className={cn(
-              "bg-neutral-50 p-2 px-5",
+              "bg-white border-[1px] p-2 px-5 overflow-scroll scrollbar-hide ",
               sideBar.isOpen && "block",
               !sideBar.isOpen && "hidden"
             )}
           >
-            <Title text="Price" tag="h2" className="text-lg" />
-            <div className="flex items-center gap-3">
-              0
-              <Slider
-                defaultValue={[1000]}
-                max={1000}
-                step={1}
-                className={cn("w-[60%]")}
+            <div className="inline-flex gap-3 items-center">
+              <Title text="Price" tag="h2" className="text-lg" />
+              <Checkbox
+                onCheckedChange={(e: CheckedState) =>
+                  setFilterEnabledSet({
+                    ...filterEnabledSet,
+                    price: e == true,
+                  })
+                }
               />
-              1000
+            </div>
+            <div
+              className={cn(" gap-3", !filterEnabledSet.price && "opacity-50")}
+            >
+              <div className="flex items-center gap-3">
+                {minPrice.toFixed(0)}
+                <Slider
+                  defaultValue={priceRange}
+                  max={maxPrice}
+                  min={minPrice}
+                  step={1}
+                  className={cn("w-[60%]")}
+                  value={priceRange}
+                  onValueChange={setPriceRange}
+                  disabled={!filterEnabledSet.price}
+                />
+                {maxPrice.toFixed(0)}
+              </div>
+              <div className="mx-auto w-fit text-sm ">
+                {priceRange[0]} - {priceRange[1]}
+              </div>
             </div>
             <section id="categories-section ">
               <div className="items-center flex justify-between">
@@ -300,63 +337,75 @@ function Store() {
         </section>
         <section
           id="#product-search-listings"
-          className=" flex flex-col gap-4 p-4 flex-1"
+          className=" flex flex-col p-4 flex-1"
         >
-          <div>Showing results for {query ? `${query}` : "all products"}</div>
-          <div className="flex items-center justify-end gap-3">
-            Sort by:
-            <Select defaultValue="featured">
-              <SelectTrigger className="w-[180px] h-[30px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Sort by</SelectLabel>
-                  <SelectItem value="featured">Featured</SelectItem>
-                  <SelectItem value="price-l-t-h">
-                    Price: Low to High
-                  </SelectItem>
-                  <SelectItem value="price-h-t-l">
-                    Price: High to Low
-                  </SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-          {productsStore.isLoading ? (
-            Array.from({ length: productsStore.pageSize }).map((p, i) => (
-              <ProductCardLoader variant="full" key={i} />
-            ))
-          ) : productsStore.productsResult.products.length === 0 ? (
-            <div className="min-h-full flex flex-col items-center py-32">
-              <Image
-                src={"https://imgur.com/dVDXL8m.jpg"}
-                width={200}
-                height={200}
-                alt="Product not found."
-                className="grayscale"
-              />
-              <Title
-                text="Sorry, we couldn't find any products that match your requirement."
-                className="font-normal"
-              />
+          <div className="inline-flex items-center justify-between">
+            <div>
+              Showing results for{" "}
+              <span className="font-bold">
+                {query ? `${query}` : "all products"}
+              </span>
             </div>
-          ) : (
-            productsStore.productsResult.products.map((product) => (
-              <ProductCard
-                key={product.productId}
-                productResult={product}
-                variant="full"
-              />
-            ))
-          )}
+            <div className="flex items-center justify-end gap-3">
+              Sort by:
+              <Select defaultValue="featured">
+                <SelectTrigger className="w-[180px] h-[30px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Sort by</SelectLabel>
+                    <SelectItem value="featured">Featured</SelectItem>
+                    <SelectItem value="price-l-t-h">
+                      Price: Low to High
+                    </SelectItem>
+                    <SelectItem value="price-h-t-l">
+                      Price: High to Low
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="py-4">
+            {productsStore.isLoading ? (
+              Array.from({ length: productsStore.pageSize }).map((p, i) => (
+                <ProductCardLoader variant="full" key={i} />
+              ))
+            ) : productsStore.productsResult.products.length === 0 ? (
+              <div className="min-h-full flex flex-col items-center py-32">
+                <Image
+                  src={"https://imgur.com/dVDXL8m.jpg"}
+                  width={200}
+                  height={200}
+                  alt="Product not found."
+                  className="grayscale"
+                />
+                <Title
+                  text="Sorry, we couldn't find any products."
+                  className="font-normal"
+                />
+              </div>
+            ) : (
+              productsStore.productsResult.products.map((product) => (
+                <ProductCard
+                  key={product.productId}
+                  productResult={product}
+                  variant="full"
+                />
+              ))
+            )}
+          </div>
           <div>
             <PaginationGenerator
               totalPages={Math.ceil(
                 productsStore.productsResult.totalCount / productsStore.pageSize
               )}
               currentPage={page}
-              onPageChange={(p) => setPage(p)}
+              onPageChange={(p) => {
+                window.scrollTo(0, 0);
+                setPage(p);
+              }}
             />
           </div>
         </section>
