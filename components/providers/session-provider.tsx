@@ -3,7 +3,16 @@
 import { useEnvStore } from "@/lib/zustand/useEnvStore";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
+interface UserSessionInfo {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 interface SessionContextType {
+  userSessionInfo: UserSessionInfo;
+  setUserSessionInfo: (value: UserSessionInfo) => void;
   isLoggedIn: boolean;
   setLoggedIn: (value: boolean) => void;
 }
@@ -15,6 +24,13 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  const [userSessionInfo, setUserSessionInfo] = useState({
+    userId: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+  });
+
   const { apiBaseUrl } = useEnvStore();
 
   useEffect(() => {
@@ -23,13 +39,24 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
         credentials: "include",
       });
       setIsLoggedIn(res.ok);
+      if (res.ok) {
+        const b = await res.json();
+        setUserSessionInfo(b);
+      }
     };
 
     checkSession();
   }, []);
 
   return (
-    <SessionContext.Provider value={{ isLoggedIn, setLoggedIn: setIsLoggedIn }}>
+    <SessionContext.Provider
+      value={{
+        isLoggedIn,
+        setLoggedIn: setIsLoggedIn,
+        setUserSessionInfo,
+        userSessionInfo,
+      }}
+    >
       {children}
     </SessionContext.Provider>
   );
