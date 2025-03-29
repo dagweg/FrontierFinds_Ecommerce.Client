@@ -44,6 +44,7 @@ import { CheckedState } from "@radix-ui/react-checkbox";
 import { toast, Toaster, useSonner } from "sonner";
 import { useRouter } from "next/navigation";
 import { IconCancel } from "@tabler/icons-react";
+import { ChooseSubcategoryCombobox } from "@/app/my-products/create-product-listing/choose-subcategory-combobox";
 
 interface CreateImageRequest {
   imageFile?: File;
@@ -291,9 +292,7 @@ function CreateProductListingPage() {
       "bottomImage",
     ];
     optionalImages.forEach((field) => {
-      if (listing[field].imageFile && errors[field]?.length === 0) {
-        formData.append(`${field}.imageFile`, listing[field].imageFile!);
-      }
+      formData.append(`${field}.imageFile`, listing[field].imageFile!);
     });
 
     console.log(formData);
@@ -314,7 +313,7 @@ function CreateProductListingPage() {
           icon: <IconCancel size={24} />,
         });
       } else {
-        setListing(emptyListing);
+        // setListing(emptyListing);
         toast("Product has been created", {
           description: "Product created successfully",
           icon: <Check size={24} />,
@@ -409,9 +408,9 @@ function CreateProductListingPage() {
   ); // Dependencies for useCallback -  `allCategories` might be needed if filtering logic relies on it.
 
   return (
-    <section className="h-screen min-h-fit">
+    <section className="h-screen min-h-fit bg-white p-8">
       <Toaster />
-      <div className="max-w-6xl mx-auto p-4 flex flex-col">
+      <div className="max-w-[1800px] mx-auto p-4 flex flex-col">
         <Title text="Create Product Listing" className="text-3xl" />
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <LabelInputContainer className="mb-4" error={errors.ProductName?.[0]}>
@@ -587,7 +586,7 @@ function CreateProductListingPage() {
 
           {/* Thumbnail Image Upload */}
           <LabelInputContainer
-            error={errors.thumbnail?.[0]}
+            error={errors.Thumbnail?.[0]}
             className="my-6 w-[300px] h-[200px] relative"
           >
             <Label htmlFor="thumbnail">Thumbnail Image *</Label>
@@ -728,9 +727,24 @@ function CreateProductListingPage() {
             </LabelInputContainer>
           </div>
 
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Create Product"}
-          </Button>
+          <div className="flex gap-3 justify-between items-center">
+            <Button
+              type="button"
+              disabled={isSubmitting}
+              className="w-[300px] p-5 self-start my-10 bg-neutral-200"
+              variant={"secondary"}
+              onClick={() => setListing(emptyListing)}
+            >
+              Clear
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-[300px] p-5 self-start my-10"
+            >
+              {isSubmitting ? "Submitting..." : "Submit Product"}
+            </Button>
+          </div>
         </form>
       </div>
     </section>
@@ -738,98 +752,3 @@ function CreateProductListingPage() {
 }
 
 export default CreateProductListingPage;
-
-interface ChooseSubcategoryComboboxProps {
-  categories: CategoryResult[];
-  selectedParentCategories: number[];
-  selectedSubCategories: number[];
-  setSelectedSubCategories: Dispatch<SetStateAction<number[]>>;
-  onSubcategoriesChange: (subcategoryIds: number[]) => void;
-  initialSubcategories: number[];
-  allCategoriesList: CategoryResult[];
-}
-
-export function ChooseSubcategoryCombobox({
-  categories,
-  selectedParentCategories,
-  selectedSubCategories,
-  setSelectedSubCategories,
-  onSubcategoriesChange,
-  initialSubcategories,
-  allCategoriesList,
-}: ChooseSubcategoryComboboxProps) {
-  const [open, setOpen] = React.useState(false);
-
-  const subCategories = categories
-    .filter((p) => selectedParentCategories.includes(p.id))
-    .flatMap((x) => x.subCategories);
-
-  console.log("SUB CATEGORIE");
-  console.log(subCategories);
-
-  const handleSubcategorySelect = (subcategoryId: number) => {
-    setSelectedSubCategories((currentValues) =>
-      currentValues.includes(subcategoryId)
-        ? currentValues.filter((v) => v !== subcategoryId)
-        : [...currentValues, subcategoryId]
-    );
-  };
-
-  useEffect(() => {
-    setSelectedSubCategories([]);
-  }, [allCategoriesList]);
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="space-y-1 max-w-full">
-        {selectedSubCategories.length > 0 &&
-          selectedSubCategories
-            .map((id) =>
-              allCategoriesList
-                .flatMap((c) => c.subCategories)
-                .find((subCat) => subCat.id === id && subCat.id !== null)
-            )
-            .map((c) => (
-              <div
-                className="inline-block mx-1 ring-2 ring-transparent hover:opacity-25 bg-black text-white px-4 h-6 cursor-pointer rounded-full "
-                onClick={() => handleSubcategorySelect(c?.id!)}
-              >
-                {c?.name}
-              </div>
-            ))}
-      </div>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-[300px] justify-between"
-          >
-            Select subcategories...
-            <ChevronsUpDown className="opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[300px] p-0">
-          <Command>
-            <CommandInput placeholder="Search subcategory..." className="h-9" />
-            <CommandList>
-              {subCategories.length > 0 ? (
-                subCategories
-                  .filter((s) => !selectedSubCategories.includes(s.id))
-                  .map((s) => (
-                    <CommandItem onSelect={() => handleSubcategorySelect(s.id)}>
-                      {s.name}
-                    </CommandItem>
-                  ))
-              ) : (
-                <CommandEmpty>No subcategory found.</CommandEmpty>
-              )}
-              <CommandGroup></CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    </div>
-  );
-}
