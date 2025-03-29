@@ -1,4 +1,6 @@
 export interface ProductsResult {
+  minPriceValueInCents: number;
+  maxPriceValueInCents: number;
   totalCount: number;
   totalFetchedCount: number;
   products: ProductResult[];
@@ -16,6 +18,7 @@ export interface ProductResult {
   images: ProductImagesResult;
   tags: TagResult[] | null;
   categories: CategoryResult[];
+  totalReviews: number;
   sellerId: string; // Assuming SellerId is string based on context, adjust to Guid if necessary
 }
 
@@ -60,4 +63,22 @@ export interface FilterProductsQuery {
   categoryIds?: number[];
   pageNumber: number;
   pageSize: number;
+}
+
+export interface ProductReviewsResult {
+  productReviews: ProductReviewResult[];
+  totalCount: number;
+  totalFetchedCount: number;
+}
+
+export interface ProductReviewResult {
+  reviewer: ProductReviewUserResult;
+  description: string;
+  rating: number;
+}
+
+export interface ProductReviewUserResult {
+  id: string;
+  fullname: string;
+  profileImageUrl: string | null;
 }
