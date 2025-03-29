@@ -12,6 +12,7 @@ import getUnicodeFlagIcon from "country-flag-icons/unicode"; // Import country-f
 import Link from "next/link";
 import Image from "next/image";
 import { LabelInputContainer } from "@/components/ui/label-input-container";
+import { usePhoneNumber } from "@/lib/hooks/usePhoneNumber";
 
 export default function SignUp() {
   const router = useRouter();
@@ -22,8 +23,9 @@ export default function SignUp() {
   const [email, setEmail] = useState("dagtef@gmail.com");
   const [password, setPassword] = useState("12345678@Aa");
   const [confirmPassword, setConfirmPassword] = useState("12345678@Aa");
-  const [phoneNumber, setPhoneNumber] = useState("+251911111111");
-  const [flagEmoji, setFlagEmoji] = useState<string | null>(null);
+
+  const { phoneNumber, setPhoneNumber, flagEmoji, handlePhoneNumberChange } =
+    usePhoneNumber();
 
   const [country, setCountry] = useState("et");
   const [city, setCity] = useState("");
@@ -70,13 +72,10 @@ export default function SignUp() {
       const data = await response.json();
       if (response.ok) {
         if (data.AlreadyExistsButUnverified) {
-          console.log("User already exists but is unverified");
         } else {
-          console.log("Registration successful");
         }
         router.push(`/accounts/verify?d=${data.token}`);
       } else if (response.status === 400) {
-        console.log("Validation errors:", data.errors);
         setErrors(data.errors);
       } else {
         console.error("Registration failed:", response);
@@ -88,36 +87,36 @@ export default function SignUp() {
     }
   };
 
-  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const number = e.target.value;
-    setPhoneNumber(number);
-    setFlagEmoji(null);
+  // const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const number = e.target.value;
+  //   setPhoneNumber(number);
+  //   setFlagEmoji(null);
 
-    try {
-      const phoneNumberParsed = parsePhoneNumberFromString(number);
-      if (phoneNumberParsed && phoneNumberParsed.country) {
-        const countryCode = phoneNumberParsed.country;
-        const flag = getFlagEmoji(countryCode);
-        setFlagEmoji(flag);
-        console.log("Flag Emoji ", flag);
-      }
+  //   try {
+  //     const phoneNumberParsed = parsePhoneNumberFromString(number);
+  //     if (phoneNumberParsed && phoneNumberParsed.country) {
+  //       const countryCode = phoneNumberParsed.country;
+  //       const flag = getFlagEmoji(countryCode);
+  //       setFlagEmoji(flag);
+  //
+  //     }
 
-      console.log("Parsed Phone ", phoneNumberParsed);
-    } catch (error) {
-      // Parsing error, flag remains null
-    }
-  };
+  //
+  //   } catch (error) {
+  //     // Parsing error, flag remains null
+  //   }
+  // };
 
-  const getFlagEmoji = (countryCode: string): string | null => {
-    const countryCodeUpper = countryCode.toUpperCase();
-    // country-flag-icons exports an object where keys are country codes
-    // and values are the emoji flags
-    // if (countries[countryCodeUpper as keyof typeof countries]) {
-    //   return countries[countryCodeUpper as keyof typeof countries];
-    // }
-    // return null;
-    return `http://purecatamphetamine.github.io/country-flag-icons/3x2/${countryCodeUpper}.svg`;
-  };
+  // const getFlagEmoji = (countryCode: string): string | null => {
+  //   const countryCodeUpper = countryCode.toUpperCase();
+  //   // country-flag-icons exports an object where keys are country codes
+  //   // and values are the emoji flags
+  //   // if (countries[countryCodeUpper as keyof typeof countries]) {
+  //   //   return countries[countryCodeUpper as keyof typeof countries];
+  //   // }
+  //   // return null;
+  //   return `http://purecatamphetamine.github.io/country-flag-icons/3x2/${countryCodeUpper}.svg`;
+  // };
 
   return (
     <div className="flex flex-col items-center  min-h-screen  dark:bg-black">
@@ -177,6 +176,7 @@ export default function SignUp() {
                   value={phoneNumber}
                   onChange={handlePhoneNumberChange}
                 />
+
                 {flagEmoji && (
                   <Image
                     src={flagEmoji}
