@@ -52,11 +52,9 @@ export default function SignIn() {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("Sign in successful");
         // Handle successful sign-in, e.g., redirect or store token
         location.reload();
       } else if (response.status === 400) {
-        console.log("Validation errors:", data.errors);
         setErrors(data.errors);
       } else if (response.status === 401) {
         console.error("Sign in failed:", data.message);
