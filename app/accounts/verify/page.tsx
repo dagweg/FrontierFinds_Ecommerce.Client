@@ -42,7 +42,7 @@ function VerifyAccount() {
     useEffect(() => {
       if (otp.length === 6) {
         //
-        console.log("OTP: ", otp);
+
         if (resendBtnRef.current) {
           resendBtnRef.current.disabled = true;
         }
@@ -51,9 +51,6 @@ function VerifyAccount() {
           otp,
           userId: (tkn as any).sub,
         };
-
-        console.log(request);
-        console.log(tkn);
 
         (async () => {
           // Send OTP to server
@@ -67,10 +64,7 @@ function VerifyAccount() {
 
           const d = await response.json();
 
-          console.log(d);
-
           if (response.ok) {
-            console.log("OTP is valid");
             setOtpSuccess(true);
             setTimeout(() => {
               router.push("/accounts/signin");
@@ -110,13 +104,12 @@ function VerifyAccount() {
 
       const data = await res.json();
 
-      // console.log(data);
+      //
 
       setOtpResendSuccess(data.isSuccess);
       setOtpWaitSeconds(data.waitSeconds);
 
       if (res.ok) {
-        console.log(otpWaitSeconds);
         setOtpResendTimerRunning(true);
         alert("OTP sent successfully.");
       } else {
