@@ -29,6 +29,8 @@ export const useProductsStore = create<ProductsState>((set) => ({
     totalCount: 0,
     totalFetchedCount: 0,
     products: [],
+    minPriceValueInCents: 0,
+    maxPriceValueInCents: 1000,
   },
   categories: [],
   setCategories: (categories) =>
