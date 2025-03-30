@@ -3,9 +3,11 @@
 import withAuth from "@/lib/decorators/withAuth";
 import { useEnvStore } from "@/lib/zustand/useEnvStore";
 import { Loader } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useLayoutEffect } from "react";
 
 function LogoutPage() {
+  const router = useRouter();
   const { apiBaseUrl } = useEnvStore();
   useLayoutEffect(() => {
     (async () => {
@@ -13,7 +15,7 @@ function LogoutPage() {
         method: "POST",
         credentials: "include",
       });
-      if (r.ok) location.reload();
+      if (r.ok) router.push("/accounts/signin");
     })();
   }, []);
   return (

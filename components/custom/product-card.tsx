@@ -29,7 +29,12 @@ const ProductCard: React.FC<{
 
   const [user, setUser] = useState<UserResult>();
 
-  const { isLoggedIn } = useSession();
+  const {
+    isLoggedIn,
+    userSessionInfo: { userId },
+  } = useSession();
+
+  const isMyProduct = productResult.sellerId === userId;
 
   const cartStore = useCartStore();
   const cartItems = useCartStore((s) => s.cart.items);
@@ -112,7 +117,7 @@ const ProductCard: React.FC<{
           originalPriceValue={productResult.priceValueInCents + 1000}
           isOnSale={true}
         />
-        {!isCompact && isLoggedIn && (
+        {!isCompact && !isMyProduct && isLoggedIn && (
           <div className="w-full flex justify-end text-xs gap-3">
             <Button
               className="h-[25px]"
