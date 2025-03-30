@@ -1,7 +1,6 @@
 import { useEnvStore } from "@/lib/zustand/useEnvStore";
 import { CartItemResult, CartResult } from "@/types/cart.types";
 import { create } from "zustand";
-import { subscribeWithSelector } from "zustand/middleware";
 
 interface CartState {
   cart: CartResult;

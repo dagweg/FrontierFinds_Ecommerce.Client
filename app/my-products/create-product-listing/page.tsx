@@ -44,7 +44,96 @@ import { CheckedState } from "@radix-ui/react-checkbox";
 import { toast, Toaster, useSonner } from "sonner";
 import { useRouter } from "next/navigation";
 import { IconCancel } from "@tabler/icons-react";
-import { ChooseSubcategoryCombobox } from "@/app/my-products/create-product-listing/choose-subcategory-combobox";
+
+interface ChooseSubcategoryComboboxProps {
+  categories: CategoryResult[];
+  selectedParentCategories: number[];
+  selectedSubCategories: number[];
+  setSelectedSubCategories: Dispatch<SetStateAction<number[]>>;
+  onSubcategoriesChange: (subcategoryIds: number[]) => void;
+  initialSubcategories: number[];
+  allCategoriesList: CategoryResult[];
+}
+
+function ChooseSubcategoryCombobox({
+  categories,
+  selectedParentCategories,
+  selectedSubCategories,
+  setSelectedSubCategories,
+  onSubcategoriesChange,
+  initialSubcategories,
+  allCategoriesList,
+}: ChooseSubcategoryComboboxProps) {
+  const [open, setOpen] = React.useState(false);
+  const subCategories = categories
+    .filter((p) => selectedParentCategories.includes(p.id))
+    .flatMap((x) => x.subCategories);
+
+  const handleSubcategorySelect = (subcategoryId: number) => {
+    setSelectedSubCategories((currentValues) =>
+      currentValues.includes(subcategoryId)
+        ? currentValues.filter((v) => v !== subcategoryId)
+        : [...currentValues, subcategoryId]
+    );
+  };
+
+  useEffect(() => {
+    setSelectedSubCategories([]);
+  }, [allCategoriesList]);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="space-y-1 max-w-full">
+        {selectedSubCategories.length > 0 &&
+          selectedSubCategories
+            .map((id) =>
+              allCategoriesList
+                .flatMap((c) => c.subCategories)
+                .find((subCat) => subCat.id === id && subCat.id !== null)
+            )
+            .map((c) => (
+              <div
+                className="inline-block mx-1 ring-2 ring-transparent hover:opacity-25 bg-black text-white px-4 h-6 cursor-pointer rounded-full "
+                onClick={() => handleSubcategorySelect(c?.id!)}
+              >
+                {c?.name}
+              </div>
+            ))}
+      </div>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-[300px] justify-between"
+          >
+            Select subcategories...
+            <ChevronsUpDown className="opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[300px] p-0">
+          <Command>
+            <CommandInput placeholder="Search subcategory..." className="h-9" />
+            <CommandList>
+              {subCategories.length > 0 ? (
+                subCategories
+                  .filter((s) => !selectedSubCategories.includes(s.id))
+                  .map((s) => (
+                    <CommandItem onSelect={() => handleSubcategorySelect(s.id)}>
+                      {s.name}
+                    </CommandItem>
+                  ))
+              ) : (
+                <CommandEmpty>No subcategory found.</CommandEmpty>
+              )}
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
 
 interface CreateImageRequest {
   imageFile?: File;

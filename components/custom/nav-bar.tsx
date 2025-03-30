@@ -83,7 +83,7 @@ function Navbar() {
 
   useEffect(() => {
     if (isLoggedIn) cartStore.initializeCart();
-  }, []);
+  }, [isLoggedIn]);
 
   const handleSearchBoxChange = (e: ChangeEvent<HTMLInputElement>) => {
     let q = e.target.value;

@@ -18,7 +18,6 @@ const postLoginPaths: Path[] = [
   "/products",
   "/cart",
   "/checkout",
-  "/store/:path*",
 ];
 export const unprotectedPaths: Path[] = [
   "/store",
@@ -64,10 +63,6 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
   const isLoggedIn = authRes.ok;
   headers.set("x-is-logged-in", isLoggedIn.toString());
-
-  if (path.startsWith("/store/") && !isLoggedIn) {
-    return NextResponse.redirect(new URL(signInUrl(), request.url));
-  }
 
   // Allow unprotected paths without authorization
   if (matchPath(path, unprotectedPaths)) {

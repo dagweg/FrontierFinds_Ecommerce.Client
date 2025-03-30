@@ -16,6 +16,7 @@ import { IconBasketPlus } from "@tabler/icons-react";
 import { useCartStore } from "@/lib/zustand/useCartStore";
 import RatingDisplay from "@/components/custom/rating-display";
 import { cn } from "@/lib/utils";
+import { useSession } from "@/components/providers/session-provider";
 
 const ProductCard: React.FC<{
   productResult: ProductResult;
@@ -27,6 +28,8 @@ const ProductCard: React.FC<{
   const apiBaseUrl = useEnvStore().apiBaseUrl;
 
   const [user, setUser] = useState<UserResult>();
+
+  const { isLoggedIn } = useSession();
 
   const cartStore = useCartStore();
   const cartItems = useCartStore((s) => s.cart.items);
@@ -67,7 +70,7 @@ const ProductCard: React.FC<{
           width={200}
           height={200}
           className={clsx({
-            "opacity-100 h-full object-contain object-center": true,
+            "opacity-100 h-full object-contain object-center  top-0": true,
             "mx-auto h-[200]": isCompact,
           })}
           style={{
@@ -109,12 +112,14 @@ const ProductCard: React.FC<{
           originalPriceValue={productResult.priceValueInCents + 1000}
           isOnSale={true}
         />
-        {!isCompact && (
+        {!isCompact && isLoggedIn && (
           <div className="w-full flex justify-end text-xs gap-3">
             <Button
               className="h-[25px]"
               variant={"ghost"}
-              onClick={() => cartStore.addToCart(productResult.productId)}
+              onClick={() => {
+                cartStore.addToCart(productResult.productId);
+              }}
               disabled={cartItems.some(
                 (item) => item.id === productResult.productId
               )}

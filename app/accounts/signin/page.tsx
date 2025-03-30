@@ -12,9 +12,11 @@ import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input-ace";
 import { useEnvStore } from "@/lib/zustand/useEnvStore";
 import { LabelInputContainer } from "@/components/ui/label-input-container";
+import { useRouter } from "next/navigation";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
+  const router = useRouter();
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<
     | {
@@ -54,6 +56,7 @@ export default function SignIn() {
       if (response.ok) {
         // Handle successful sign-in, e.g., redirect or store token
         location.reload();
+        router.push("/store");
       } else if (response.status === 400) {
         setErrors(data.errors);
       } else if (response.status === 401) {

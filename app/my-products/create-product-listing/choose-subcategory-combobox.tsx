@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -13,7 +15,7 @@ import {
   CommandGroup,
 } from "cmdk";
 import { ChevronsUpDown, Command } from "lucide-react";
-import React, { Dispatch, SetStateAction, useEffect } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 interface ChooseSubcategoryComboboxProps {
   categories: CategoryResult[];
@@ -35,13 +37,7 @@ export function ChooseSubcategoryCombobox({
   allCategoriesList,
 }: ChooseSubcategoryComboboxProps) {
   const [open, setOpen] = React.useState(false);
-
-  const subCategories = categories
-    .filter((p) => selectedParentCategories.includes(p.id))
-    .flatMap((x) => x.subCategories);
-
-  console.log("SUB CATEGORIE");
-  console.log(subCategories);
+  const [subCategories, setSubCategories] = useState<CategoryResult[]>([]);
 
   const handleSubcategorySelect = (subcategoryId: number) => {
     setSelectedSubCategories((currentValues) =>
@@ -50,6 +46,14 @@ export function ChooseSubcategoryCombobox({
         : [...currentValues, subcategoryId]
     );
   };
+
+  useEffect(() => {
+    setSubCategories(
+      categories
+        .filter((p) => selectedParentCategories.includes(p.id))
+        .flatMap((x) => x.subCategories)
+    );
+  }, []);
 
   useEffect(() => {
     setSelectedSubCategories([]);
@@ -101,7 +105,6 @@ export function ChooseSubcategoryCombobox({
               ) : (
                 <CommandEmpty>No subcategory found.</CommandEmpty>
               )}
-              <CommandGroup></CommandGroup>
             </CommandList>
           </Command>
         </PopoverContent>
