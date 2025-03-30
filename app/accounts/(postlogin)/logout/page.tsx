@@ -1,5 +1,6 @@
 "use client";
 
+import withAuth from "@/lib/decorators/withAuth";
 import { useEnvStore } from "@/lib/zustand/useEnvStore";
 import { Loader } from "lucide-react";
 import React, { useLayoutEffect } from "react";
@@ -23,4 +24,4 @@ function LogoutPage() {
   );
 }
 
-export default LogoutPage;
+export default withAuth(LogoutPage);

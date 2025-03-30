@@ -62,9 +62,9 @@ function Store() {
 
   const productsStore = useProductsStore();
 
-  const [query, setQuery] = useState(searchParam.get("q"));
+  const [query, setQuery] = useState(searchParam?.get("q"));
 
-  const [page, setPage] = useState(parseInt(searchParam.get("page") ?? "1"));
+  const [page, setPage] = useState(parseInt(searchParam?.get("page") ?? "1"));
 
   const { apiBaseUrl } = useEnvStore((state) => state);
 
@@ -210,10 +210,10 @@ function Store() {
       isInitialMount.current = false;
       return;
     }
-    const q = searchParam.get("q");
+    const q = searchParam?.get("q");
     setQuery(q);
     let params = getFilterSearchParams();
-    if (q !== null) params.set("name", q);
+    if (q !== undefined && q !== null) params.set("name", q);
     console.log(params.entries().toArray());
     fetchProducts(params);
   }, [page, searchParam]);

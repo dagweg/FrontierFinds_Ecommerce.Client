@@ -55,41 +55,41 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   const headers = new Headers(request.headers);
   headers.set("x-current-path", path);
 
-  const authRes = await fetch(`${apiUrl}/auth/authorize`, {
-    credentials: "include",
-    headers: {
-      cookie: request.headers.get("cookie") || "",
-    },
-  });
+  // const authRes = await fetch(`${apiUrl}/auth/authorize`, {
+  //   credentials: "include",
+  //   headers: {
+  //     cookie: request.headers.get("cookie") || "",
+  //   },
+  // });
 
-  const isLoggedIn = authRes.ok;
-  headers.set("x-is-logged-in", isLoggedIn.toString());
+  // const isLoggedIn = authRes.ok;
+  // headers.set("x-is-logged-in", isLoggedIn.toString());
 
-  // Allow unprotected paths without authorization
-  if (matchPath(path, unprotectedPaths)) {
-    return NextResponse.next({ headers });
-  }
+  // // Allow unprotected paths without authorization
+  // if (matchPath(path, unprotectedPaths)) {
+  //   return NextResponse.next({ headers });
+  // }
 
-  // --- Redirection Logic ---
-  if (!isLoggedIn) {
-    // Not logged in
-    console.log(path);
-    if (matchPath(path, postLoginPaths)) {
-      // Trying to access a post-login path, redirect to sign-in
-      // Optional: Add callback URL
-      return NextResponse.redirect(new URL(signInUrl(), request.url));
-    }
-  } else {
-    // Logged in
+  // // --- Redirection Logic ---
+  // if (!isLoggedIn) {
+  //   // Not logged in
+  //   console.log(path);
+  //   if (matchPath(path, postLoginPaths)) {
+  //     // Trying to access a post-login path, redirect to sign-in
+  //     // Optional: Add callback URL
+  //     return NextResponse.redirect(new URL(signInUrl(), request.url));
+  //   }
+  // } else {
+  //   // Logged in
 
-    if (matchPath(path, preLoginPaths)) {
-      // Trying to access a pre-login path while logged in, redirect to homepage or profile
-      return NextResponse.redirect(new URL("/", request.url)); // Redirect to homepage
-      // or
-      // return NextResponse.redirect(new URL("/accounts/profile", request.url)); // Redirect to profile
-    }
-  }
+  //   if (matchPath(path, preLoginPaths)) {
+  //     // Trying to access a pre-login path while logged in, redirect to homepage or profile
+  //     return NextResponse.redirect(new URL("/", request.url)); // Redirect to homepage
+  //     // or
+  //     // return NextResponse.redirect(new URL("/accounts/profile", request.url)); // Redirect to profile
+  //   }
+  // }
 
-  // If no redirection is needed, continue to the requested path
+  // // If no redirection is needed, continue to the requested path
   return NextResponse.next({ headers });
 }

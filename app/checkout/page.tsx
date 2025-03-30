@@ -18,6 +18,7 @@ import { useForm } from "react-hook-form";
 import { useSession } from "@/components/providers/session-provider";
 import { ShoppingBasket } from "lucide-react";
 import Link from "next/link";
+import withAuth from "@/lib/decorators/withAuth";
 
 const Checkout: React.FC = () => {
   const store = useCartStore();
@@ -667,7 +668,7 @@ const Checkout: React.FC = () => {
               </div>
 
               {/* Right Section: Order Summary */}
-              <div className="w-full lg:w-[400px] bg-white p-6 rounded-lg shadow-xl border-2 h-fit sticky  top-[85px] z-[100]">
+              <div className="w-full lg:w-[400px] bg-white p-6 rounded-lg shadow-xl border-2 h-fit sticky  top-[85px] z-[10]">
                 <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
                 {store.cart &&
                 store.cart.items &&
@@ -741,4 +742,4 @@ const Checkout: React.FC = () => {
   );
 };
 
-export default Checkout;
+export default withAuth(Checkout);

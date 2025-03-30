@@ -7,6 +7,7 @@ import { PaginationGenerator } from "@/components/custom/pagination-generator";
 import PriceTag from "@/components/custom/price-tag";
 import Title from "@/components/custom/title";
 import { Button } from "@/components/ui/button";
+import withAuth from "@/lib/decorators/withAuth";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/lib/zustand/useCartStore";
 import { useProductsStore } from "@/lib/zustand/useProductsStore";
@@ -159,4 +160,4 @@ const MyCartPage: React.FC = () => {
   );
 };
 
-export default MyCartPage;
+export default withAuth(MyCartPage);

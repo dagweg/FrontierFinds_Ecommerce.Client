@@ -26,7 +26,7 @@ interface BreadcrumbDemoProps {
 
 export function BreadcrumbGenerator() {
   // Split the pathname into segments
-  const pathname = decodeURIComponent(usePathname());
+  const pathname = decodeURIComponent(usePathname() ?? "");
   const segments = pathname.split("/").filter(Boolean); // Remove empty strings
 
   if (segments.length <= 1 || segments[0] === "profile") return <></>;

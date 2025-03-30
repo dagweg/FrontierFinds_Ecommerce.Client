@@ -13,11 +13,18 @@ import { Input } from "@/components/ui/input-ace";
 import { useEnvStore } from "@/lib/zustand/useEnvStore";
 import { LabelInputContainer } from "@/components/ui/label-input-container";
 import { useRouter } from "next/navigation";
+import { useSession } from "@/components/providers/session-provider";
 
 export default function SignIn() {
-  const [email, setEmail] = useState("");
   const router = useRouter();
+
+  const { isLoggedIn } = useSession();
+
+  if (isLoggedIn) router.push("/");
+
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [errors, setErrors] = useState<
     | {
         Email?: string[];

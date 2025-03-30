@@ -40,7 +40,7 @@ import React, { useEffect, useLayoutEffect, useState } from "react";
 function ProductDetailPage() {
   const pathname = usePathname();
   const router = useRouter();
-  const slug = pathname.split("/").pop();
+  const slug = pathname?.split("/").pop();
 
   const { apiBaseUrl } = useEnvStore();
 

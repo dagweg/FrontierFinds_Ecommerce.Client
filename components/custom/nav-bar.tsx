@@ -71,7 +71,7 @@ function Navbar() {
 
   const handleSearchBoxSubmit = (e: KeyboardEvent) => {
     if (e.key === "Enter") {
-      const params = new URLSearchParams(searchParams);
+      const params = new URLSearchParams(searchParams ?? "");
 
       if (query.trim() === "") {
         params.delete("q");
@@ -126,7 +126,7 @@ function Navbar() {
             href={`/store`}
             className={cn(
               " px-4 py-1 ",
-              pathname.includes("store") && "bg-neutral-100  rounded-full"
+              pathname?.includes("store") && "bg-neutral-100  rounded-full"
             )}
           >
             Store
@@ -136,7 +136,7 @@ function Navbar() {
               href={`/cart`}
               className={cn(
                 " px-4 py-1  flex items-center gap-2 relative",
-                pathname.includes("cart") && "bg-neutral-100  rounded-full"
+                pathname?.includes("cart") && "bg-neutral-100  rounded-full"
               )}
             >
               <span className="z-10">Cart</span>

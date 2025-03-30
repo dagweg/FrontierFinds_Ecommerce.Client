@@ -13,9 +13,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { LabelInputContainer } from "@/components/ui/label-input-container";
 import { usePhoneNumber } from "@/lib/hooks/usePhoneNumber";
+import { useSession } from "@/components/providers/session-provider";
 
 export default function SignUp() {
   const router = useRouter();
+
+  const { isLoggedIn } = useSession();
+
+  if (isLoggedIn) router.push("/");
+
   const { apiBaseUrl } = useEnvStore((state) => state);
 
   const [firstName, setFirstName] = useState("");

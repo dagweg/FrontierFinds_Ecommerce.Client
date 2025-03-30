@@ -11,7 +11,7 @@ import React, { useLayoutEffect } from "react";
 function MyProduct() {
   const pathname = usePathname();
   const router = useRouter();
-  const slug = pathname.split("/").pop();
+  const slug = pathname?.split("/").pop();
 
   const { apiBaseUrl } = useEnvStore();
 
