@@ -7,6 +7,7 @@ import RatingComponent from "@/components/custom/rating-component";
 import RatingDisplay from "@/components/custom/rating-display";
 import Title from "@/components/custom/title";
 import ZoomImage from "@/components/custom/zoom-image";
+import { useSession } from "@/components/providers/session-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -42,6 +43,8 @@ function ProductDetailPage() {
   const slug = pathname.split("/").pop();
 
   const { apiBaseUrl } = useEnvStore();
+
+  const { isLoggedIn } = useSession();
 
   const [selectedImage, setSelectedImage] =
     useState<ProductImageResult | null>();
@@ -233,10 +236,10 @@ function ProductDetailPage() {
             />
           )}
         </div>
-        <div className="flex-1 p-2">
+        <div className="flex-1 p-2 ">
           <section className="flex justify-start h-fit  gap-3">
             <div className="flex-1 flex gap-4">
-              <div className="flex gap-2">
+              <div className="sticky top-[85px] h-fit">
                 <ZoomImage
                   src={selectedImage?.url ?? "https://imgur.com/zVWz723.jpg"}
                   width={500}
@@ -245,7 +248,8 @@ function ProductDetailPage() {
                   alt=""
                 />
               </div>
-              <div className="flex flex-col gap-3 mt-16 h-full ">
+
+              <div className="flex flex-col gap-3 pt-16 flex-1 h-full">
                 <Title text={product.productName} className="text-3xl" />
                 <span className="text-sm text-neutral-600">
                   <div className="inline-flex items-center gap-3">
@@ -272,14 +276,16 @@ function ProductDetailPage() {
                   size="large"
                 />
                 <p>{product.productDescription}</p>
-                <div className="inline-flex gap-2 items-center">
-                  <Button className="w-[200px] " onClick={handleAddToCart}>
-                    <IconBasket /> Add to Cart
-                  </Button>
-                </div>
+                {isLoggedIn && (
+                  <div className="inline-flex gap-2 items-center">
+                    <Button className="w-[200px] " onClick={handleAddToCart}>
+                      <IconBasket /> Add to Cart
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
-            {seller && (
+            {/* {seller && (
               <>
                 <div className="w-[300px] border-2  h-fit flex flex-col p-5 mx-auto">
                   <h2 className="text-lg font-semibold mb-4">
@@ -327,7 +333,7 @@ function ProductDetailPage() {
                   </div>
                 </div>
               </>
-            )}
+            )} */}
           </section>
           <section className="flex flex-col  gap-3 mt-20 max-w-4xl">
             <div className="relative flex flex-col items-end gap-4">
