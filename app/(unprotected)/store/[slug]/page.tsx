@@ -44,12 +44,17 @@ function ProductDetailPage() {
 
   const { apiBaseUrl } = useEnvStore();
 
-  const { isLoggedIn } = useSession();
+  const {
+    isLoggedIn,
+    userSessionInfo: { userId },
+  } = useSession();
 
   const [selectedImage, setSelectedImage] =
     useState<ProductImageResult | null>();
 
   const [seller, setSeller] = useState<UserResult>();
+
+  const [isMyProduct, setIsMyProduct] = useState(false);
 
   const cartStore = useCartStore();
 
@@ -123,7 +128,7 @@ function ProductDetailPage() {
     }
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const fetchProduct = async () => {
       const r = await fetch(`${apiBaseUrl}/products/slug/${slug}`, {
         method: "GET",
@@ -134,6 +139,7 @@ function ProductDetailPage() {
       if (r.ok) {
         setProduct(b);
         fetchSeller(b.sellerId);
+        setIsMyProduct(b.sellerId === userId);
         setSelectedImage(b.images.thumbnail);
         setReview({ ...review, productId: b.productId });
       } else if (r.status === 404) {
@@ -276,7 +282,7 @@ function ProductDetailPage() {
                   size="large"
                 />
                 <p>{product.productDescription}</p>
-                {isLoggedIn && (
+                {isLoggedIn && !isMyProduct && (
                   <div className="inline-flex gap-2 items-center">
                     <Button className="w-[200px] " onClick={handleAddToCart}>
                       <IconBasket /> Add to Cart

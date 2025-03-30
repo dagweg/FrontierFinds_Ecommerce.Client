@@ -117,24 +117,36 @@ const ProductCard: React.FC<{
           originalPriceValue={productResult.priceValueInCents + 1000}
           isOnSale={true}
         />
-        {!isCompact && !isMyProduct && isLoggedIn && (
+        {!isCompact && (
           <div className="w-full flex justify-end text-xs gap-3">
-            <Button
-              className="h-[25px]"
-              variant={"ghost"}
-              onClick={() => {
-                cartStore.addToCart(productResult.productId);
-              }}
-              disabled={cartItems.some(
-                (item) => item.id === productResult.productId
-              )}
-            >
-              <IconBasketPlus />
-              Add to Cart
-            </Button>
+            {!isMyProduct && isLoggedIn && (
+              <Button
+                className="h-[25px]"
+                variant={"ghost"}
+                onClick={() => {
+                  cartStore.addToCart(productResult.productId);
+                }}
+                disabled={cartItems.some(
+                  (item) => item.id === productResult.productId
+                )}
+              >
+                <IconBasketPlus />
+                Add to Cart
+              </Button>
+            )}
             {user && (
               <span className="inline-flex items-center gap-1">
-                / <User2Icon size={15} /> {user.firstName + " " + user.lastName}
+                {isMyProduct ? (
+                  <span className="bg-neutral-700 border-[1px] border-neutral-500 px-4 rounded-full py-1 text-white">
+                    Your Product
+                  </span>
+                ) : (
+                  <>
+                    /
+                    <User2Icon size={15} />{" "}
+                    {user.firstName + " " + user.lastName}
+                  </>
+                )}
               </span>
             )}
           </div>
