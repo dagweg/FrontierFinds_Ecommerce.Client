@@ -6,6 +6,7 @@ import { useCartStore } from "@/lib/zustand/useCartStore";
 import { CartItemResult } from "@/types/cart.types";
 import { Minus, Plus, Trash, Trash2 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import React, { useState } from "react";
 import { useInView } from "react-intersection-observer";
 
@@ -59,9 +60,12 @@ const CartItemCard: React.FC<CartItemCardProps> = ({
         <div className="flex justify-between gap-20 items-start ">
           <div className="space-y-3 flex-1">
             <div>
-              <h3 className="text-xl  font-bold  text-gray-800">
+              <Link
+                href={`/store/${item.product.slug}`}
+                className="text-xl  font-bold  text-gray-800 hover:underline underline-offset-2"
+              >
                 {item.product.productName}
-              </h3>
+              </Link>
               <p className="max-w-[800px]">
                 {` Lorem, ipsum dolor sit amet consectetur adipisicing elit. Illo
                 excepturi vitae quis aperiam, impedit accusamus, facilis
