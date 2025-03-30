@@ -50,6 +50,7 @@ const matchPath = (path: string, patterns: Path[]): boolean => {
 };
 
 export async function middleware(request: NextRequest): Promise<NextResponse> {
+  console.log("API URL ", apiUrl);
   const path = request.nextUrl.pathname;
   const headers = new Headers(request.headers);
   headers.set("x-current-path", path);
@@ -72,7 +73,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   // --- Redirection Logic ---
   if (!isLoggedIn) {
     // Not logged in
-
+    console.log(path);
     if (matchPath(path, postLoginPaths)) {
       // Trying to access a post-login path, redirect to sign-in
       // Optional: Add callback URL
