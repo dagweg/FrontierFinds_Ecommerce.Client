@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -54,6 +55,11 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   const path = request.nextUrl.pathname;
   const headers = new Headers(request.headers);
   headers.set("x-current-path", path);
+
+  const cookiz = await cookies();
+  if (path === "/logout") {
+    cookiz.delete("Access-Token");
+  }
 
   // const authRes = await fetch(`${apiUrl}/auth/authorize`, {
   //   credentials: "include",

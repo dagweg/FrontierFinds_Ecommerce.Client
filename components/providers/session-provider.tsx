@@ -1,6 +1,7 @@
 "use client";
 
 import { useEnvStore } from "@/lib/zustand/useEnvStore";
+import { usePathname } from "next/navigation";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface UserSessionInfo {
@@ -33,6 +34,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const { apiBaseUrl } = useEnvStore();
 
+  const pathname = usePathname();
+
   useEffect(() => {
     const checkSession = async () => {
       const res = await fetch(`${apiBaseUrl}/auth/authorize`, {
@@ -46,7 +49,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     checkSession();
-  }, []);
+  }, [pathname]);
 
   return (
     <SessionContext.Provider

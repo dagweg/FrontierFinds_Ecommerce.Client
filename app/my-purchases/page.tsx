@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton"; // For loading state
 import { useRouter } from "next/navigation"; // For navigation
 import { useEnvStore } from "@/lib/zustand/useEnvStore";
+import Link from "next/link";
 
 // Updated Order interface to match your API response
 interface Order {
@@ -43,7 +44,7 @@ interface OrdersResponse {
 
 function MyPurchases() {
   const [orders, setOrders] = useState<Order[] | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -97,8 +98,8 @@ function MyPurchases() {
   };
 
   return (
-    <section className="h-full">
-      <div className="max-w-6xl mx-auto p-4 bg-white">
+    <section className="h-full ">
+      <div className="max-w-6xl mx-auto p-4 bg-white h-screen min-h-fit">
         <Title text="My Purchases" className="text-3xl mb-4" />
 
         {isLoading ? (
@@ -165,7 +166,13 @@ function MyPurchases() {
           </Table>
         ) : (
           <div className="text-gray-500">
-            You haven't made any purchases yet.
+            You haven't made any purchases yet. Go to the{" "}
+            <Link
+              href={"/store"}
+              className="text-black  underline underline-offset-2"
+            >
+              Store
+            </Link>
           </div>
         )}
       </div>
