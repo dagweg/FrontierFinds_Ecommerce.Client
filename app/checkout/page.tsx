@@ -16,9 +16,17 @@ import Image from "next/image";
 import { Form, FormDescription } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { useSession } from "@/components/providers/session-provider";
-import { ShoppingBasket } from "lucide-react";
+import {
+  Circle,
+  CircleDashedIcon,
+  CircleIcon,
+  Loader,
+  LoaderCircle,
+  ShoppingBasket,
+} from "lucide-react";
 import Link from "next/link";
 import withAuth from "@/lib/decorators/withAuth";
+import { IconBrandStripe, IconBrandStripeFilled } from "@tabler/icons-react";
 
 const Checkout: React.FC = () => {
   const store = useCartStore();
@@ -725,11 +733,21 @@ const Checkout: React.FC = () => {
                       </div>
                     </div>
                     <Button
-                      className="w-full mt-6"
+                      className="w-full h-fit mt-6 bg-blue-500 focus:ring-2 hover:bg-blue-600 "
                       onClick={handlePlaceOrder}
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? "Placing Order..." : "Place Order"}
+                      {isSubmitting ? (
+                        <>
+                          Processing Order
+                          <LoaderCircle className="animate-spin" />
+                        </>
+                      ) : (
+                        <>
+                          <IconBrandStripeFilled size={50} />
+                          Continue with Stripe{" "}
+                        </>
+                      )}
                     </Button>
                   </>
                 ) : (
