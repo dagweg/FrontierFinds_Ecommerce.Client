@@ -189,7 +189,7 @@ const emptyListing: CreateListingForm = {
   productDescription: "",
   stockQuantity: 1,
   priceValueInCents: 0,
-  priceCurrency: "ETB",
+  priceCurrency: "USD",
   thumbnail: { imageFile: undefined },
   leftImage: { imageFile: undefined },
   rightImage: { imageFile: undefined },
@@ -587,13 +587,12 @@ function CreateProductListingPage() {
                   setListing((prev) => ({ ...prev, priceCurrency: value }))
                 }
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[180px]"> 
                   <SelectValue placeholder="Select currency" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     <SelectItem value="USD">USD</SelectItem>
-                    <SelectItem value="ETB">ETB</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>

@@ -16,7 +16,7 @@ const getFlagEmoji = (countryCode: string): string | null => {
 };
 
 export const usePhoneNumber = (
-  initialPhoneNumber: string = "+251911111111"
+  initialPhoneNumber: string = "+115514859406"
 ): UsePhoneNumberReturn => {
   const [phoneNumber, setPhoneNumber] = useState(initialPhoneNumber);
   const [flagEmoji, setFlagEmoji] = useState<string | null>(null);

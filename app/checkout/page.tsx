@@ -33,12 +33,12 @@ const Checkout: React.FC = () => {
 
   // State for shipping address
   const [shippingAddress, setShippingAddress] = useState({
-    street: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "",
-    email: "",
+    street: "123 Main St",
+    city: "San Jose",
+    state: "CA",
+    zipCode: "95131",
+    country: "United States",
+    email: "johndoe@example.com",
   });
 
   // State for billing address
@@ -145,8 +145,6 @@ const Checkout: React.FC = () => {
       newErrors["ShippingAddress.state"] = "State is required";
     if (!shippingAddress.zipCode)
       newErrors["ShippingAddress.zipCode"] = "ZIP code is required";
-    else if (!/^\d{5}(-\d{4})?$/.test(shippingAddress.zipCode))
-      newErrors["ShippingAddress.zipCode"] = "Invalid ZIP code format";
     if (!shippingAddress.country)
       newErrors["ShippingAddress.country"] = "Country is required";
     if (!shippingAddress.email)
@@ -155,8 +153,6 @@ const Checkout: React.FC = () => {
       newErrors["ShippingAddress.email"] = "Invalid email format";
     if (!phoneNumber)
       newErrors["ShippingAddress.phone"] = "Phone number is required";
-    else if (!/^\d{10}$/.test(phoneNumber.replace(/\D/g, "")))
-      newErrors["ShippingAddress.phone"] = "Phone number must be 10 digits";
 
     // Billing Address validation (if not same as shipping)
     if (!sameAsShipping) {
@@ -168,29 +164,27 @@ const Checkout: React.FC = () => {
         newErrors["BillingAddress.state"] = "State is required";
       if (!billingAddress.zipCode)
         newErrors["BillingAddress.zipCode"] = "ZIP code is required";
-      else if (!/^\d{5}(-\d{4})?$/.test(billingAddress.zipCode))
-        newErrors["BillingAddress.zipCode"] = "Invalid ZIP code format";
       if (!billingAddress.country)
         newErrors["BillingAddress.country"] = "Country is required";
     }
 
     // Payment Information validation
-    if (!paymentInfo.cardNumber)
-      newErrors["PaymentInformation.cardNumber"] = "Card number is required";
-    else if (!/^\d{16}$/.test(paymentInfo.cardNumber.replace(/\D/g, "")))
-      newErrors["PaymentInformation.cardNumber"] =
-        "Card number must be 16 digits";
-    if (!paymentInfo.expiry)
-      newErrors["PaymentInformation.expiry"] = "Expiry date is required";
-    else if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(paymentInfo.expiry))
-      newErrors["PaymentInformation.expiry"] = "Invalid expiry date (MM/YY)";
-    if (!paymentInfo.cvv)
-      newErrors["PaymentInformation.cvv"] = "CVV is required";
-    else if (!/^\d{3,4}$/.test(paymentInfo.cvv))
-      newErrors["PaymentInformation.cvv"] = "CVV must be 3 or 4 digits";
-    if (!paymentInfo.cardHolderName)
-      newErrors["PaymentInformation.cardHolderName"] =
-        "Cardholder name is required";
+    // if (!paymentInfo.cardNumber)
+    //   newErrors["PaymentInformation.cardNumber"] = "Card number is required";
+    // else if (!/^\d{16}$/.test(paymentInfo.cardNumber.replace(/\D/g, "")))
+    //   newErrors["PaymentInformation.cardNumber"] =
+    //     "Card number must be 16 digits";
+    // if (!paymentInfo.expiry)
+    //   newErrors["PaymentInformation.expiry"] = "Expiry date is required";
+    // else if (!/^(0[1-9]|1[0-2])\/\d{4}$/.test(paymentInfo.expiry))
+    //   newErrors["PaymentInformation.expiry"] = "Invalid expiry date (MM/YYYY)";
+    // if (!paymentInfo.cvv)
+    //   newErrors["PaymentInformation.cvv"] = "CVV is required";
+    // else if (!/^\d{3,4}$/.test(paymentInfo.cvv))
+    //   newErrors["PaymentInformation.cvv"] = "CVV must be 3 or 4 digits";
+    // if (!paymentInfo.cardHolderName)
+    //   newErrors["PaymentInformation.cardHolderName"] =
+    //     "Cardholder name is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -206,6 +200,8 @@ const Checkout: React.FC = () => {
     setServerError(null);
     setErrors({});
 
+    const [expiryMonth, expiryYear] = paymentInfo.expiry.split("/");
+
     // Prepare the order data
     const orderData = {
       shippingAddress: {
@@ -218,18 +214,21 @@ const Checkout: React.FC = () => {
         phone: phoneNumber,
       },
       billingAddress: sameAsShipping ? shippingAddress : billingAddress,
-      paymentInformation: {
-        cardNumber: paymentInfo.cardNumber,
-        expiry: paymentInfo.expiry,
-        cvv: paymentInfo.cvv,
-        cardHolderName: paymentInfo.cardHolderName,
-      },
-      products: store.cart.items.map((item: CartItemResult) => ({
+      // paymentInformation: {
+      //   cardNumber: paymentInfo.cardNumber,
+      //   expiryMonth,
+      //   expiryYear,
+      //   cvv: paymentInfo.cvv,
+      //   cardHolderName: paymentInfo.cardHolderName,
+      // },
+      orderProducts: store.cart.items.map((item: CartItemResult) => ({
         productId: item.product.productId,
         quantity: item.quantity,
-        price: item.product.priceValueInCents,
       })),
     };
+
+    console.log("This is the order data");
+    console.log(orderData);
 
     try {
       const response = await fetch(`${apiBaseUrl}/orders`, {
@@ -243,6 +242,8 @@ const Checkout: React.FC = () => {
 
       const result = await response.json();
 
+      console.log(result);
+
       if (!response.ok) {
         // Handle server-side errors
         if (result.errors) {
@@ -251,6 +252,7 @@ const Checkout: React.FC = () => {
             newErrors[key] = result.errors[key][0]; // Take the first error message
           });
           setErrors(newErrors);
+          console.log(newErrors);
         }
         setServerError(
           result.detail || "An error occurred while placing the order."
@@ -259,9 +261,7 @@ const Checkout: React.FC = () => {
         return;
       }
 
-      // Success
-      store.clearCart();
-      router.push("/order-confirmation");
+      router.push(result.redirectUrl);
     } catch (error) {
       setServerError(
         "Failed to connect to the server. Please try again later."
@@ -293,7 +293,7 @@ const Checkout: React.FC = () => {
   return (
     <section className="min-h-screen  py-8">
       <Form {...form}>
-        <form>
+        <form onSubmit={(e) => e.preventDefault()}>
           <div className="max-w-[1200px] mx-auto px-4">
             <h1 className="text-3xl font-bold mb-8">Checkout</h1>
             {serverError && (
@@ -579,7 +579,7 @@ const Checkout: React.FC = () => {
                 </div>
 
                 {/* Payment Information */}
-                <div className="bg-white p-6 rounded-lg shadow-md">
+                {/* <div className="bg-white p-6 rounded-lg shadow-md">
                   <h2 className="text-xl font-semibold mb-4">
                     Payment Information
                   </h2>
@@ -637,9 +637,11 @@ const Checkout: React.FC = () => {
                             : ""
                         }
                       />
-                      {errors["PaymentInformation.expiry"] && (
+                      {(errors["PaymentInformation.ExpiryYear"] ||
+                        errors["PaymentInformation.ExpiryMonth"]) && (
                         <p className="text-red-500 text-sm">
-                          {errors["PaymentInformation.expiry"]}
+                          {errors["PaymentInformation.ExpiryYear"] ??
+                            errors["PaymentInformation.ExpiryMonth"]}
                         </p>
                       )}
                     </div>
@@ -664,7 +666,7 @@ const Checkout: React.FC = () => {
                       )}
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
 
               {/* Right Section: Order Summary */}
