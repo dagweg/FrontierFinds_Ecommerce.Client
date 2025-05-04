@@ -13,6 +13,8 @@ interface ProductsState {
   // filterQuery: FilterProductsQuery;
   categories: CategoryResult[];
   setCategories: (categories: CategoryResult[]) => void;
+  setIsCategoriesLoading: (isLoading: boolean) => void;
+  isCategoriesLoading: boolean;
   isLoading: boolean;
   setIsLoading: (isLoading: boolean) => void;
   addProduct: (product: ProductResult) => void;
@@ -33,6 +35,12 @@ export const useProductsStore = create<ProductsState>((set) => ({
     maxPriceValueInCents: 1000,
   },
   categories: [],
+  setIsCategoriesLoading: (isLoading) =>
+    set((state) => ({
+      ...state,
+      isCategoriesLoading: isLoading,
+    })),
+  isCategoriesLoading: true,
   setCategories: (categories) =>
     set((state) => ({
       ...state,

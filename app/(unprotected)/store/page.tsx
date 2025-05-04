@@ -56,6 +56,68 @@ import Button from "@/components/custom/button";
 import { CheckboxProps, CheckedState } from "@radix-ui/react-checkbox";
 import Image from "next/image";
 
+import { Skeleton } from "@/components/ui/skeleton";
+
+function StoreLeftBarLoader() {
+  return (
+    <div className="space-y-6 w-full p-4">
+      {/* Categories */}
+      {/* Price Range */}
+      <div>
+        <Skeleton className="h-8 w-full" />
+        <div className="mt-2 space-y-2 w-full">
+          <div className="flex items-center space-x-2 w-full">
+            <Skeleton className="h-6 w-[50%]" />
+            <span className="text-muted-foreground">-</span>
+            <Skeleton className="h-6 w-[50%]" />
+          </div>
+          <Skeleton className="h-2 w-full" />
+        </div>
+      </div>
+      <div>
+        <Skeleton className="h-8 w-24" />
+        <div className="mt-2 space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+        </div>
+      </div>
+      {/* Filters */}
+      <div>
+        <Skeleton className="h-8 w-24" />
+        <div className="mt-2 space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+        </div>
+      </div>
+
+      {/* Additional Filters (you can add more as needed) */}
+      <div>
+        <Skeleton className="h-8 w-36" />
+        <div className="mt-2 space-y-2">
+          <Skeleton className="h-4 w-12" />
+          <Skeleton className="h-4 w-18" />
+        </div>
+        <br />
+        <div className="mt-2 space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+        </div>
+      </div>
+      <div>
+        <Skeleton className="h-8 w-[75%]" />
+        <div className="mt-2 space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Store() {
   const router = useRouter();
   const searchParam = useSearchParams();
@@ -192,6 +254,7 @@ function Store() {
   };
 
   useEffect(() => {
+    productsStore.setIsCategoriesLoading(true);
     fetch(`${apiBaseUrl}/products/categories`, {
       method: "GET",
       credentials: "include",
@@ -201,6 +264,7 @@ function Store() {
       if (r.ok) {
         productsStore.setCategories(b.categories);
       }
+      productsStore.setIsCategoriesLoading(false);
     });
     fetchProducts();
   }, []);
@@ -213,7 +277,7 @@ function Store() {
     const q = searchParam?.get("q");
     setQuery(q);
     let params = getFilterSearchParams();
-    if (q !== undefined && q !== null) params.set("name", q);
+    if (q !== undefined && q !== null) params.set("searchTerm", q);
     console.log(params.entries().toArray());
     fetchProducts(params);
   }, [page, searchParam]);
@@ -228,112 +292,128 @@ function Store() {
               "w-[250px] sticky max-h-screen h-fit  top-[105px]  md:left-0 "
           )}
         >
-          <div
-            className={cn(
-              "bg-white border-[1px] p-2 px-5 overflow-scroll scrollbar-hide ",
-              sideBar.isOpen && "block",
-              !sideBar.isOpen && "hidden"
-            )}
-          >
-            <div className="inline-flex gap-3 items-center">
-              <Title text="Price" tag="h2" className="text-lg" />
-              <Checkbox
-                onCheckedChange={(e: CheckedState) =>
-                  setFilterEnabledSet({
-                    ...filterEnabledSet,
-                    price: e == true,
-                  })
-                }
-              />
-            </div>
-            <div
-              className={cn(" gap-3", !filterEnabledSet.price && "opacity-50")}
-            >
-              <div className="flex items-center gap-3">
-                {minPrice.toFixed(0)}
-                <Slider
-                  defaultValue={priceRange}
-                  max={maxPrice}
-                  min={minPrice}
-                  step={1}
-                  className={cn("w-[60%]")}
-                  value={priceRange}
-                  onValueChange={setPriceRange}
-                  disabled={!filterEnabledSet.price}
-                />
-                {maxPrice.toFixed(0)}
-              </div>
-              <div className="mx-auto w-fit text-sm ">
-                {priceRange[0]} - {priceRange[1]}
-              </div>
-            </div>
-            <section id="categories-section ">
-              <div className="items-center flex justify-between">
-                <Title text="Categories" tag="h2" className="text-lg" />
-                {/* <IconTrash className="w-8 h-8 aspect-square p-1 rounded-full bg-neutral-200" /> */}
-                <button
-                  className="text-xs hover:underline"
-                  onClick={handleCategoriesClear}
+          {productsStore.isCategoriesLoading ? (
+            <StoreLeftBarLoader />
+          ) : (
+            <>
+              <div
+                className={cn(
+                  "bg-white border-[1px] p-2 px-5 overflow-scroll scrollbar-hide ",
+                  sideBar.isOpen && "block",
+                  !sideBar.isOpen && "hidden"
+                )}
+              >
+                <div className="inline-flex gap-3 items-center">
+                  <Title text="Price" tag="h2" className="text-lg" />
+                  <Checkbox
+                    onCheckedChange={(e: CheckedState) =>
+                      setFilterEnabledSet({
+                        ...filterEnabledSet,
+                        price: e == true,
+                      })
+                    }
+                  />
+                </div>
+                <div
+                  className={cn(
+                    " gap-3",
+                    !filterEnabledSet.price && "opacity-50"
+                  )}
                 >
-                  Clear
-                </button>
-              </div>
-              <div className="flex flex-col gap-2 w-full" ref={categoriesRef}>
-                {productsStore.categories?.map((c, i) => {
-                  return (
-                    c.isActive && (
-                      <div key={i}>
-                        <div className="flex items-center gap-2">
-                          <IconTriangleFilled
-                            className={cn(
-                              c.expanded ? "rotate-180" : "rotate-90",
-                              "w-2"
-                            )}
-                          />
-                          <Checkbox
-                            onClick={() => handleCategoryCheckClicked(c)}
-                            checked={c.checked}
-                          ></Checkbox>
-                          <Label>{c.name}</Label>
-                        </div>
-                        <div className="flex  max-w-full  flex-wrap">
-                          {c.subCategories.map((sc, _) => (
-                            <div
-                              key={_}
-                              className={cn(
-                                c.expanded ? "hidden" : "inline-flex",
-                                "m-1 ml-6  gap-2 items-center"
-                              )}
-                            >
+                  <div className="flex items-center gap-3">
+                    {minPrice.toFixed(0)}
+                    <Slider
+                      defaultValue={priceRange}
+                      max={maxPrice}
+                      min={minPrice}
+                      step={1}
+                      className={cn("w-[60%]")}
+                      value={priceRange}
+                      onValueChange={setPriceRange}
+                      disabled={!filterEnabledSet.price}
+                    />
+                    {maxPrice.toFixed(0)}
+                  </div>
+                  <div className="mx-auto w-fit text-sm ">
+                    {priceRange[0]} - {priceRange[1]}
+                  </div>
+                </div>
+                <section id="categories-section ">
+                  <div className="items-center flex justify-between">
+                    <Title text="Categories" tag="h2" className="text-lg" />
+                    {/* <IconTrash className="w-8 h-8 aspect-square p-1 rounded-full bg-neutral-200" /> */}
+                    <button
+                      className="text-xs hover:underline"
+                      onClick={handleCategoriesClear}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  <div
+                    className="flex flex-col gap-2 w-full"
+                    ref={categoriesRef}
+                  >
+                    {productsStore.categories?.map((c, i) => {
+                      return (
+                        c.isActive && (
+                          <div key={i}>
+                            <div className="flex items-center gap-2">
+                              <IconTriangleFilled
+                                className={cn(
+                                  c.expanded ? "rotate-180" : "rotate-90",
+                                  "w-2"
+                                )}
+                              />
                               <Checkbox
-                                onClick={() => handleCategoryCheckClicked(sc)}
-                                checked={sc.checked}
+                                onClick={() => handleCategoryCheckClicked(c)}
+                                checked={c.checked}
                               ></Checkbox>
-                              <Label>{sc.name}</Label>
+                              <Label>{c.name}</Label>
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    )
-                  );
-                })}
+                            <div className="flex  max-w-full  flex-wrap">
+                              {c.subCategories.map((sc, _) => (
+                                <div
+                                  key={_}
+                                  className={cn(
+                                    c.expanded ? "hidden" : "inline-flex",
+                                    "m-1 ml-6  gap-2 items-center"
+                                  )}
+                                >
+                                  <Checkbox
+                                    onClick={() =>
+                                      handleCategoryCheckClicked(sc)
+                                    }
+                                    checked={sc.checked}
+                                  ></Checkbox>
+                                  <Label>{sc.name}</Label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )
+                      );
+                    })}
+                  </div>
+                  <div className="flex justify-end mt-3">
+                    <Input
+                      onClick={handleApplyFilter}
+                      className="hover:bg-black hover:text-neutral-200 font-medium bg-neutral-100 w-fit  focus:ring-2 ring-neutral-300 duration-300 transition"
+                      type="button"
+                      value="Apply Filter"
+                    />
+                  </div>
+                </section>
               </div>
-              <div className="flex justify-end mt-3">
-                <Input
-                  onClick={handleApplyFilter}
-                  className="hover:bg-black hover:text-neutral-200 font-medium bg-neutral-100 w-fit  focus:ring-2 ring-neutral-300 duration-300 transition"
-                  type="button"
-                  value="Apply Filter"
-                />
+              <div
+                className="absolute  w-3 right-[-5px] h-full cursor-pointer   group"
+                onClick={() =>
+                  setSideBar({ ...sideBar, isOpen: !sideBar.isOpen })
+                }
+              >
+                <div className="h-full w-[2px] rounded-full group-hover:bg-neutral-800  duration-100 mx-auto"></div>
               </div>
-            </section>
-          </div>
-          <div
-            className="absolute  w-3 right-[-5px] h-full cursor-pointer   group"
-            onClick={() => setSideBar({ ...sideBar, isOpen: !sideBar.isOpen })}
-          >
-            <div className="h-full w-[2px] rounded-full group-hover:bg-neutral-800  duration-100 mx-auto"></div>
-          </div>
+            </>
+          )}
         </section>
         <section
           id="#product-search-listings"
