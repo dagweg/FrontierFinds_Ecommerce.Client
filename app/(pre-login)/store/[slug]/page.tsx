@@ -1,6 +1,6 @@
 "use client";
 
-import Reviews from "@/app/(unprotected)/store/[slug]/reviews";
+import Reviews from "@/app/(pre-login)/store/[slug]/reviews";
 import { PaginationGenerator } from "@/components/custom/pagination-generator";
 import PriceTag from "@/components/custom/price-tag";
 import RatingComponent from "@/components/custom/rating-component";
