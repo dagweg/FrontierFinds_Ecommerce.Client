@@ -87,20 +87,26 @@ const Checkout: React.FC = () => {
     let subtotal = 0;
     let discount = 0;
     let itemCount = 0;
-
     store.cart.items.forEach((item: CartItemResult) => {
       const itemPrice = item.product.priceValueInCents;
       const originalPrice =
-        item.product.priceValueInCents || item.product.priceValueInCents;
+        item.product.originalPriceValueInCents ||
+        item.product.priceValueInCents;
       const itemSubtotal = (itemPrice / 100) * item.quantity;
       subtotal += itemSubtotal;
       itemCount += item.quantity;
 
-      // if (item.product.isOnSale && originalPrice > itemPrice) {
-      //   const itemDiscount =
-      //     ((originalPrice - itemPrice) / 100) * item.quantity;
-      //   discount += itemDiscount;
-      // }
+      // Calculate discount if product is on sale
+      if (
+        item.product.isOnSale &&
+        item.product.originalPriceValueInCents &&
+        item.product.originalPriceValueInCents > itemPrice
+      ) {
+        const itemDiscount =
+          ((item.product.originalPriceValueInCents - itemPrice) / 100) *
+          item.quantity;
+        discount += itemDiscount;
+      }
     });
 
     const taxRate = 0.08;

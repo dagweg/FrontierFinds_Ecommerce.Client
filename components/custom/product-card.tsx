@@ -55,103 +55,165 @@ const ProductCard: React.FC<{
   }, []);
 
   const isCompact = variant === "compact";
+  const isInCart = cartItems.some(
+    (item) => item.id === productResult.productId
+  );
 
   return (
     <div
-      className={clsx({
-        "cursor-pointer overflow-hidden relative    border-[1px] bg-white  border-neutral-200 hover:border-[1px] hover:shadow-lg hover:border-neutral-300 active:ring-4 ring-neutral-200   duration-100  mx-auto  p-4 group":
-          true,
-        "w-full h-60 flex items-end": variant === "full",
-        "max-w-sm h-[400px] w-[300px] grid grid-cols-1 grid-rows-2": isCompact,
-      })}
+      className={cn(
+        "group relative bg-white dark:bg-neutral-900 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700",
+        {
+          "h-[480px] flex flex-col": isCompact,
+          "h-[320px] flex": variant === "full",
+        }
+      )}
     >
-      <div className={cn("h-full", isCompact && "")}>
-        <Image
-          src={
-            productResult.images.thumbnail.url ??
-            "https://imgur.com/N8xhNK3.jpg"
-          }
-          alt=""
-          width={200}
-          height={200}
-          className={clsx({
-            "opacity-100 h-full object-contain object-center  top-0": true,
-            "mx-auto h-[200]": isCompact,
-          })}
-          style={{
-            objectFit: "contain",
-          }}
-        ></Image>
-      </div>
-      {/* <div className=" w-full h-full top-0 left-0 transition duration-300 group-hover/card:bg-neutral-100 bg-neutral-200  opacity-60"></div> */}
+      {/* Image Section */}
       <div
         className={cn(
-          "text content relative z-10 p-4 flex flex-col w-full h-full",
-          isCompact && "justify-end"
+          "relative overflow-hidden bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-800 dark:to-neutral-900",
+          {
+            "h-[240px] rounded-t-2xl": isCompact,
+            "w-1/2 rounded-l-2xl": variant === "full",
+          }
         )}
       >
-        <div
-          onClick={() => router.push(`/store/${productResult.slug}`)}
-          className={cn(
-            "font-bold text-xl md:text-2xl text-black hover:text-blue-800",
-            isCompact && "!text-lg"
-          )}
-        >
-          {productResult.productName.slice(0, isCompact ? 20 : 50)}...
+        {/* Product Image */}
+        <div className="absolute inset-0 flex items-center justify-center p-4">
+          <Image
+            src={
+              productResult.images.thumbnail.url ??
+              "https://imgur.com/N8xhNK3.jpg"
+            }
+            alt={productResult.productName}
+            width={200}
+            height={200}
+            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+          />
         </div>
-        <div className="flex items-center gap-1">
-          <RatingDisplay rating={productResult.averageRating} starSize={15} />
-          <span className="text-xs">
-            ({productResult.totalReviews} Reviews)
-          </span>
-        </div>
-        {!isCompact && (
-          <p className="font-normal text-sm text-black mt-3">
-            {productResult.productDescription.slice(0, 200) ||
-              "No description available."}
-          </p>
+
+        {/* Overlay Effects */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        {/* Quick Action Button */}
+        {!isMyProduct && isLoggedIn && (
+          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+            <Button
+              size="sm"
+              variant={isInCart ? "default" : "outline"}
+              onClick={(e) => {
+                e.stopPropagation();
+                cartStore.addToCart(productResult.productId);
+              }}
+              disabled={isInCart}
+              className={cn(
+                "shadow-lg backdrop-blur-sm border-0",
+                isInCart
+                  ? "bg-green-500 hover:bg-green-600 text-white"
+                  : "bg-white/90 dark:bg-black/90 text-gray-900 dark:text-white hover:bg-white dark:hover:bg-black"
+              )}
+            >
+              <IconBasketPlus className="w-4 h-4" />
+            </Button>
+          </div>
         )}
-        <PriceTag
-          priceValue={productResult.priceValueInCents}
-          fontWeight="bold"
-          originalPriceValue={productResult.priceValueInCents + 1000}
-          isOnSale={true}
-        />
-        {!isCompact && (
-          <div className="w-full flex justify-end text-xs gap-3">
-            {!isMyProduct && isLoggedIn && (
-              <Button
-                className="h-[25px]"
-                variant={"ghost"}
-                onClick={() => {
-                  cartStore.addToCart(productResult.productId);
-                }}
-                disabled={cartItems.some(
-                  (item) => item.id === productResult.productId
-                )}
-              >
-                <IconBasketPlus />
-                Add to Cart
-              </Button>
-            )}
-            {user && (
-              <span className="inline-flex items-center gap-1">
-                {isMyProduct ? (
-                  <span className="bg-neutral-700 border-[1px] border-neutral-500 px-4 rounded-full py-1 text-white">
-                    Your Product
-                  </span>
-                ) : (
-                  <>
-                    /
-                    <User2Icon size={15} />{" "}
-                    {user.firstName + " " + user.lastName}
-                  </>
-                )}
-              </span>
-            )}
+
+        {/* My Product Badge */}
+        {isMyProduct && (
+          <div className="absolute top-4 left-4">
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg">
+              Your Product
+            </span>
           </div>
         )}
       </div>
+
+      {/* Content Section */}
+      <div
+        className={cn("flex flex-col p-6 flex-1", {
+          "justify-between": isCompact,
+          "w-1/2": variant === "full",
+        })}
+      >
+        {/* Product Info */}
+        <div className="flex-1">
+          {/* Product Name */}
+          <h3
+            onClick={() => router.push(`/store/${productResult.slug}`)}
+            className={cn(
+              "font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 cursor-pointer line-clamp-2 leading-tight",
+              isCompact ? "text-lg mb-2" : "text-xl mb-3"
+            )}
+            title={productResult.productName}
+          >
+            {productResult.productName}
+          </h3>
+          {/* Rating */}
+          <div className="flex items-center gap-2 mb-3">
+            <RatingDisplay rating={productResult.averageRating} starSize={14} />
+            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+              ({productResult.totalReviews})
+            </span>
+          </div>
+          {/* Description - Only for full variant */}
+          {variant === "full" && (
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3 leading-relaxed">
+              {productResult.productDescription || "No description available."}
+            </p>
+          )}{" "}
+          {/* Price */}
+          <div className="mb-4">
+            <PriceTag
+              priceValue={productResult.priceValueInCents}
+              fontWeight="bold"
+              originalPriceValue={productResult.originalPriceValueInCents}
+              isOnSale={productResult.isOnSale || false}
+              discountPercentage={productResult.discountPercentage}
+            />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800">
+          {/* Seller Info */}
+          <div className="flex items-center gap-2">
+            {user && !isMyProduct && (
+              <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                <User2Icon size={12} />
+                <span className="text-xs font-medium truncate max-w-[100px]">
+                  {user.firstName} {user.lastName}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Add to Cart Button - Compact variant */}
+          {isCompact && !isMyProduct && isLoggedIn && (
+            <Button
+              size="sm"
+              variant={isInCart ? "default" : "outline"}
+              onClick={(e) => {
+                e.stopPropagation();
+                cartStore.addToCart(productResult.productId);
+              }}
+              disabled={isInCart}
+              className={cn(
+                "transition-all duration-200",
+                isInCart
+                  ? "bg-green-500 hover:bg-green-600 text-white border-green-500"
+                  : "hover:bg-gray-50 dark:hover:bg-gray-800"
+              )}
+            >
+              <IconBasketPlus className="w-4 h-4 mr-1" />
+              {isInCart ? "Added" : "Add"}
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Hover Indicator */}
+      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-b-2xl" />
     </div>
   );
 };
@@ -163,32 +225,91 @@ export const ProductCardLoader = ({
 }: {
   variant: "compact" | "full";
 }) => {
+  const isCompact = variant === "compact";
+
   return (
-    <Skeleton
-      className={clsx({
-        "bg-neutral-100 rounded-3xl": true,
-        "w-full h-60 flex items-end ": variant === "full",
-        "max-w-sm h-96": variant === "compact",
-      })}
+    <div
+      className={cn(
+        "bg-white dark:bg-neutral-900 rounded-2xl shadow-sm overflow-hidden border border-neutral-200 dark:border-neutral-800",
+        {
+          "h-[480px] flex flex-col": isCompact,
+          "h-[320px] flex": variant === "full",
+        }
+      )}
     >
-      <div className="h-full flex items-center ">
-        <Skeleton
-          className={clsx({
-            "aspect-square bg-neutral-200 h-[200px] m-3 rounded-3xl": true,
-            "mx-auto  ": variant === "compact",
-          })}
-        />
-      </div>
-      <div className="text content relative z-10 p-4 flex flex-col w-full gap-3">
-        <Skeleton className="w-[300px] h-4" />
-        <div className="inline-flex gap-2">
-          <Skeleton className=" w-[100px] h-4" />
-          <Skeleton className=" w-[100px] h-4" />
+      {/* Image Section Skeleton */}
+      <div
+        className={cn(
+          "bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-800 dark:to-neutral-900",
+          {
+            "h-[240px] rounded-t-2xl": isCompact,
+            "w-1/2 rounded-l-2xl": variant === "full",
+          }
+        )}
+      >
+        <div className="flex items-center justify-center h-full p-4">
+          <Skeleton className="w-full h-full rounded-lg bg-neutral-200 dark:bg-neutral-700" />
         </div>
-        <Skeleton className="w-[450px] h-4" />
-        <Skeleton className="w-[700px] h-4" />
-        <Skeleton className="w-[50px] h-4" />
       </div>
-    </Skeleton>
+
+      {/* Content Section Skeleton */}
+      <div
+        className={cn("flex flex-col p-6 flex-1 space-y-3", {
+          "justify-between": isCompact,
+          "w-1/2": variant === "full",
+        })}
+      >
+        {/* Product Info Skeleton */}
+        <div className="flex-1 space-y-3">
+          {/* Product Name Skeleton */}
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-4/5 bg-neutral-200 dark:bg-neutral-700" />
+            <Skeleton className="h-5 w-3/5 bg-neutral-200 dark:bg-neutral-700" />
+          </div>
+
+          {/* Rating Skeleton */}
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton
+                  key={i}
+                  className="w-3 h-3 rounded bg-neutral-200 dark:bg-neutral-700"
+                />
+              ))}
+            </div>
+            <Skeleton className="h-3 w-8 bg-neutral-200 dark:bg-neutral-700" />
+          </div>
+
+          {/* Description Skeleton - Only for full variant */}
+          {variant === "full" && (
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full bg-neutral-200 dark:bg-neutral-700" />
+              <Skeleton className="h-4 w-4/5 bg-neutral-200 dark:bg-neutral-700" />
+              <Skeleton className="h-4 w-3/5 bg-neutral-200 dark:bg-neutral-700" />
+            </div>
+          )}
+
+          {/* Price Skeleton */}
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-6 w-16 bg-neutral-200 dark:bg-neutral-700" />
+            <Skeleton className="h-4 w-12 bg-neutral-200 dark:bg-neutral-700" />
+          </div>
+        </div>
+
+        {/* Footer Skeleton */}
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800">
+          {/* Seller Info Skeleton */}
+          <div className="flex items-center gap-2">
+            <Skeleton className="w-3 h-3 rounded bg-neutral-200 dark:bg-neutral-700" />
+            <Skeleton className="h-3 w-16 bg-neutral-200 dark:bg-neutral-700" />
+          </div>
+
+          {/* Button Skeleton - Compact variant */}
+          {isCompact && (
+            <Skeleton className="h-8 w-16 rounded-md bg-neutral-200 dark:bg-neutral-700" />
+          )}
+        </div>
+      </div>
+    </div>
   );
 };

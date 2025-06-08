@@ -38,18 +38,25 @@ const MyCartPage: React.FC = () => {
     // Calculate subtotal and discount
     let subtotal = 0;
     let discount = 0;
-
     store.cart.items.forEach((item: CartItemResult) => {
-      // const itemPrice = item.isOnSale && item.salePrice ? item.salePrice : item.price;
       const itemPrice = item.product.priceValueInCents;
-      const originalPrice = item.product.priceValueInCents;
+      const originalPrice =
+        item.product.originalPriceValueInCents ||
+        item.product.priceValueInCents;
       const itemSubtotal = (itemPrice / 100) * item.quantity; // Convert cents to dollars
       subtotal += itemSubtotal;
 
-      // if (item.isOnSale && item.salePrice && item.salePrice < originalPrice) {
-      //   const itemDiscount = ((originalPrice - item.salePrice) / 100) * item.quantity;
-      //   discount += itemDiscount;
-      // }
+      // Calculate discount if product is on sale
+      if (
+        item.product.isOnSale &&
+        item.product.originalPriceValueInCents &&
+        item.product.originalPriceValueInCents > itemPrice
+      ) {
+        const itemDiscount =
+          ((item.product.originalPriceValueInCents - itemPrice) / 100) *
+          item.quantity;
+        discount += itemDiscount;
+      }
     });
 
     // Calculate tax (8% of subtotal after discount)

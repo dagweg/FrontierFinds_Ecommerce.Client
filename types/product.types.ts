@@ -20,6 +20,13 @@ export interface ProductResult {
   categories: CategoryResult[];
   totalReviews: number;
   sellerId: string; // Assuming SellerId is string based on context, adjust to Guid if necessary
+
+  // Discount/Sale related fields (optional - will be undefined until backend supports them)
+  originalPriceValueInCents?: number; // Original price before discount
+  isOnSale?: boolean; // Whether the product is currently on sale
+  discountPercentage?: number; // Explicit discount percentage (0-100)
+  saleStartDate?: string; // When the sale started (ISO date string)
+  saleEndDate?: string; // When the sale ends (ISO date string)
 }
 
 export interface ProductImagesResult {

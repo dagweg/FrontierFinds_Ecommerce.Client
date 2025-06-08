@@ -90,162 +90,219 @@ function Navbar() {
 
     setQuery(q);
   };
-
   return (
-    <section className="border-b-2 bg-white sticky top-0 z-[50] h-[80px]">
-      <nav className="flex justify-between p-4  mx-auto h-full items-center">
+    <section className="border-b border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-[50] h-[80px] transition-all duration-200">
+      <nav className="flex justify-between p-4 mx-auto h-full items-center max-w-7xl">
+        {/* Enhanced Logo */}
         <Link
           href={"/"}
-          className="text-xl  font-bold dark:text-white text-center ml-4 focus:outline-none inline-flex items-center gap-3"
+          className="text-xl font-bold dark:text-white text-center ml-4 focus:outline-none inline-flex items-center gap-3 hover-scale group transition-all duration-200"
         >
-          <Image
-            src={"/favicon-main.png"}
-            width={200}
-            height={100}
-            alt=""
-            className="rounded-sm  invert-[1] w-[50px]"
-          />
-          <span className="font-platypi">Frontier Finds</span>
+          <div className="relative">
+            <Image
+              src={"/favicon-main.png"}
+              width={50}
+              height={50}
+              alt="Frontier Finds Logo"
+              className="rounded-sm dark:invert w-[40px] h-[40px] group-hover:rotate-12 transition-transform duration-300"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-sm blur-md opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+          </div>
+          <span className="font-platypi text-gradient bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+            Frontier Finds
+          </span>
         </Link>
 
-        <div className="flex justify-between  items-center relative w-fit  ">
-          <div className="flex justify-left  items-center relative w-fit ">
-            <SearchIcon className="absolute left-5 scale-75 opacity-85" />
+        {/* Enhanced Search Bar */}
+        <div className="hidden md:flex justify-center items-center relative w-fit max-w-lg mx-4 flex-1">
+          <div className="flex justify-center items-center relative w-full group">
+            <SearchIcon className="absolute left-4 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors z-10" />
             <input
               type="text"
               value={query}
               onChange={(e) => handleSearchBoxChange(e)}
               onKeyDown={(e) => handleSearchBoxSubmit(e)}
-              placeholder={"Search Products"}
-              className="p-3 px-16 pl-[50px] border rounded-full w-[500px]  focus:ring-2 ring-neutral-200  outline-neutral-400 ring-offset-0 outline-offset-[3px] duration-150"
+              placeholder="Search amazing products..."
+              className="w-full p-3 pl-12 pr-4 border border-gray-200 dark:border-gray-700 rounded-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 hover:shadow-md focus:shadow-lg"
             />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none" />
           </div>
         </div>
-        <div className="flex justify-center items-center gap-5">
+
+        {/* Enhanced Navigation Links */}
+        <div className="flex justify-center items-center gap-6">
+          {/* Store Link */}
           <Link
             href={`/store`}
             className={cn(
-              " px-4 py-1 ",
-              pathname?.includes("store") && "bg-neutral-100  rounded-full"
+              "px-4 py-2 rounded-full font-medium transition-all duration-200 hover-scale relative overflow-hidden group",
+              pathname?.includes("store")
+                ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                : "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
             )}
           >
-            Store
+            <Store className="w-4 h-4 inline-block mr-2" />
+            <span className="hidden sm:inline">Store</span>
+            {pathname?.includes("store") && (
+              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-500" />
+            )}
           </Link>
+
+          {/* Cart Link */}
           {isLoggedIn && (
             <Link
               href={`/cart`}
               className={cn(
-                " px-4 py-1  flex items-center gap-2 relative",
-                pathname?.includes("cart") && "bg-neutral-100  rounded-full"
+                "px-4 py-2 rounded-full font-medium transition-all duration-200 hover-scale relative overflow-hidden group flex items-center gap-2",
+                pathname?.includes("cart")
+                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                  : "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
               )}
             >
-              <span className="z-10">Cart</span>
+              <ShoppingBasket className="w-4 h-4" />
+              <span className="hidden sm:inline">Cart</span>
 
+              {/* Enhanced cart badge */}
               <span
                 className={cn(
                   !cartStore.isLoading && cartStore.cart.notSeenCount > 0
-                    ? "scale-[0.8]"
-                    : "scale-0",
-                  "bg-red-500 text-white rounded-full aspect-square p-1 w-6  h-6 flex items-center justify-center text-sm font-platypi absolute top-[-8px] right-[-5px] duration-100"
+                    ? "scale-100 opacity-100"
+                    : "scale-0 opacity-0",
+                  "bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full aspect-square w-5 h-5 flex items-center justify-center text-xs font-bold absolute -top-1 -right-1 transition-all duration-200 animate-pulse"
                 )}
               >
                 {cartStore.cart.notSeenCount}
               </span>
+              {pathname?.includes("cart") && (
+                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-500" />
+              )}
             </Link>
           )}
+
+          {/* User Section */}
           {isLoggedIn ? (
-            <>
-              <div className="relative  ">
-                <Menubar className="!rounded-full">
-                  <MenubarMenu>
-                    <MenubarTrigger className="!overflow-hidden cursor-pointer group duration-300 ring-neutral-200">
-                      <Avatar
-                        onClick={handleAvatarClick}
-                        className="w-10 h-10 group-focus:ring-2 ring-neutral-200"
-                      >
+            <div className="relative">
+              <Menubar className="border-0 bg-transparent">
+                <MenubarMenu>
+                  <MenubarTrigger className="!overflow-hidden cursor-pointer group duration-300 border-0 bg-transparent p-0 hover:bg-transparent focus:bg-transparent">
+                    <div className="relative">
+                      <Avatar className="w-10 h-10 ring-2 ring-transparent group-hover:ring-blue-200 dark:group-hover:ring-blue-800 transition-all duration-200 hover-lift">
                         <AvatarImage src="https://github.com/shadcn.png" />
-                        <AvatarFallback>
+                        <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold">
                           {firstName[0] + lastName[0]}
                         </AvatarFallback>
                       </Avatar>
-                    </MenubarTrigger>
-                    <MenubarContent>
-                      <div className="w-full p-2 inline-flex flex-col text-sm">
-                        <span className="font-bold">
-                          {firstName + " " + lastName}
-                        </span>
-                        <span className="text-xs">{email}</span>
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                    </div>
+                  </MenubarTrigger>
+                  <MenubarContent className="w-56 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl rounded-xl overflow-hidden">
+                    {/* User Info Header */}
+                    <div className="w-full p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-b border-gray-100 dark:border-gray-700">
+                      <div className="font-semibold text-gray-900 dark:text-white">
+                        {firstName + " " + lastName}
                       </div>
-                      <MenubarItem onClick={() => router.push("/my-products")}>
-                        <div className="relative">
-                          <LaptopMinimal size={15} />{" "}
+                      <div className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                        {email}
+                      </div>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="p-2">
+                      <MenubarItem
+                        onClick={() => router.push("/my-products")}
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                      >
+                        <div className="relative p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                          <LaptopMinimal
+                            size={16}
+                            className="text-blue-600 dark:text-blue-400"
+                          />
+                        </div>
+                        <span className="font-medium">My Products</span>
+                      </MenubarItem>
+
+                      <MenubarItem
+                        onClick={() => router.push("/my-purchases")}
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                      >
+                        <div className="relative p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                          <GalleryVerticalEnd
+                            size={16}
+                            className="text-green-600 dark:text-green-400"
+                          />
+                        </div>
+                        <span className="font-medium">Purchases</span>
+                      </MenubarItem>
+
+                      <MenubarItem
+                        onClick={() => router.push("/settings")}
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                      >
+                        <div className="relative p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                          <Settings
+                            size={16}
+                            className="text-purple-600 dark:text-purple-400"
+                          />
+                        </div>
+                        <span className="font-medium">Settings</span>
+                      </MenubarItem>
+
+                      <MenubarItem
+                        onClick={() => router.push("/profile")}
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                      >
+                        <div className="relative p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                           <User
-                            size={10}
-                            className="absolute bg-white rounded-full right-0 bottom-0"
-                          />
-                        </div>{" "}
-                        My Products
-                      </MenubarItem>
-                      <MenubarItem onClick={() => router.push("/my-purchases")}>
-                        <div className="relative">
-                          <GalleryVerticalEnd size={15}></GalleryVerticalEnd>{" "}
-                          <DollarSign
-                            size={10}
-                            className="absolute bg-white rounded-full right-0 bottom-0"
+                            size={16}
+                            className="text-gray-600 dark:text-gray-400"
                           />
                         </div>
-                        Purchases
+                        <span className="font-medium">Profile</span>
                       </MenubarItem>
-                      <MenubarItem onClick={() => router.push("/settings")}>
-                        <div className="relative">
-                          <Settings size={15} />{" "}
-                        </div>
-                        Settings
-                      </MenubarItem>
-                      <MenubarItem onClick={() => router.push("/profile")}>
-                        <div className="relative">
-                          <User size={15} />{" "}
-                        </div>
-                        Profile
-                      </MenubarItem>
-                      <MenubarSeparator />
-                      {/* <MenubarSub>
-                        <MenubarSubTrigger>Share</MenubarSubTrigger>
-                        <MenubarSubContent>
-                        <MenubarItem>Email link</MenubarItem>
-                        <MenubarItem>Messages</MenubarItem>
-                        <MenubarItem>Notes</MenubarItem>
-                        </MenubarSubContent>
-                        <MenubarSeparator />
-                        </MenubarSub> */}
+                    </div>
+
+                    <MenubarSeparator className="bg-gray-200 dark:bg-gray-700" />
+
+                    <div className="p-2">
                       <MenubarItem
                         onClick={() => router.push("/accounts/logout")}
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer text-red-600 dark:text-red-400"
                       >
-                        {" "}
-                        <LogOut size={15} />
-                        Logout
+                        <div className="relative p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                          <LogOut
+                            size={16}
+                            className="text-red-600 dark:text-red-400"
+                          />
+                        </div>
+                        <span className="font-medium">Logout</span>
                       </MenubarItem>
-                    </MenubarContent>
-                  </MenubarMenu>
-                </Menubar>
-
-                {/* {avatarContext.isOpen && (
-                  <Link
-                    href={`/accounts/logout`}
-                    className="hover:bg-neutral-100 p-2 rounded-md px-3 absolute flex items-center gap-2"
-                  >
-                    Logout <LogOut />
-                  </Link>
-                )} */}
-              </div>
-            </>
+                    </div>
+                  </MenubarContent>
+                </MenubarMenu>
+              </Menubar>
+            </div>
           ) : (
-            <Link href={`/accounts/signup`}>
+            <Link href={`/accounts/signup`} className="hover-scale">
               <HoverBorderGradientButton text="Sign Up" logo={<></>} />
             </Link>
           )}
         </div>
       </nav>
+
+      {/* Mobile Search Bar */}
+      <div className="md:hidden px-4 pb-4">
+        <div className="flex items-center relative w-full group">
+          <SearchIcon className="absolute left-4 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors z-10" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => handleSearchBoxChange(e)}
+            onKeyDown={(e) => handleSearchBoxSubmit(e)}
+            placeholder="Search products..."
+            className="w-full p-3 pl-12 pr-4 border border-gray-200 dark:border-gray-700 rounded-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200"
+          />
+        </div>
+      </div>
     </section>
   );
 }

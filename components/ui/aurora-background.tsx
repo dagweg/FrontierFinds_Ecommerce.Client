@@ -22,30 +22,38 @@ export const AuroraBackground = ({
         )}
         {...props}
       >
+        {" "}
         <div className="absolute inset-0 overflow-hidden">
-          <div
-            //   I'm sorry but this is what peak developer performance looks like // trigger warning
-            className={cn(
-              `
-            [--white-gradient:repeating-linear-gradient(100deg,var(--white)_0%,var(--white)_7%,var(--transparent)_10%,var(--transparent)_12%,var(--white)_16%)]
-            [--dark-gradient:repeating-linear-gradient(100deg,var(--black)_0%,var(--black)_7%,var(--transparent)_10%,var(--transparent)_12%,var(--black)_16%)]
-            [--aurora:repeating-linear-gradient(100deg,var(--blue-500)_10%,var(--indigo-300)_15%,var(--blue-300)_20%,var(--violet-200)_25%,var(--blue-400)_30%)]
-            [background-image:var(--white-gradient),var(--aurora)]
-            dark:[background-image:var(--dark-gradient),var(--aurora)]
-            [background-size:300%,_200%]
-            [background-position:50%_50%,50%_50%]
-            filter blur-[10px] invert dark:invert-0
-            after:content-[""] after:absolute after:inset-0 after:[background-image:var(--white-gradient),var(--aurora)] 
-            after:dark:[background-image:var(--dark-gradient),var(--aurora)]
-            after:[background-size:200%,_100%] 
-            after:animate-aurora after:[background-attachment:fixed] after:mix-blend-difference
-            pointer-events-none
-            absolute -inset-[10px] opacity-50 will-change-transform`,
+          {/* Aurora Background Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
 
-              showRadialGradient &&
-                `[mask-image:radial-gradient(ellipse_at_100%_0%,black_10%,var(--transparent)_70%)]`
-            )}
-          ></div>
+          {/* Animated Aurora Effects */}
+          <div className="absolute inset-0">
+            {/* Primary Aurora Blob */}
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/30 to-purple-600/30 rounded-full blur-3xl animate-aurora-float" />
+
+            {/* Secondary Aurora Blob */}
+            <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-indigo-400/25 to-pink-500/25 rounded-full blur-3xl animate-aurora-drift" />
+
+            {/* Tertiary Aurora Blob */}
+            <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 w-64 h-64 bg-gradient-to-bl from-cyan-300/20 to-blue-500/20 rounded-full blur-2xl animate-aurora-pulse" />
+
+            {/* Moving Particles */}
+            <div className="absolute inset-0 opacity-30">
+              <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-400 rounded-full animate-aurora-sparkle" />
+              <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-purple-400 rounded-full animate-aurora-twinkle" />
+              <div className="absolute top-1/2 left-3/4 w-1.5 h-1.5 bg-indigo-400 rounded-full animate-aurora-glow" />
+              <div className="absolute top-1/6 right-1/3 w-1 h-1 bg-cyan-400 rounded-full animate-aurora-fade" />
+            </div>
+          </div>
+
+          {/* Overlay Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-white/20 dark:from-transparent dark:via-black/10 dark:to-black/30" />
+
+          {/* Radial Gradient Overlay */}
+          {showRadialGradient && (
+            <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-white/30 dark:to-black/50" />
+          )}
         </div>
         {children}
       </div>
