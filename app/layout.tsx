@@ -53,7 +53,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${josefinSans.variable} ${scopeOne.variable} ${platypi.variable} antialiased flex flex-col min-h-screen font-geist bg-neutral-100`}
+        className={`${geistSans.variable} ${geistMono.variable} ${josefinSans.variable} ${scopeOne.variable} ${platypi.variable} antialiased flex flex-col min-h-screen !font-geist bg-neutral-100`}
       >
         <SessionProvider>
           <Suspense

@@ -1,13 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import ProductCard, {
   ProductCardLoader,
 } from "@/components/custom/product-card";
 import { PaginationGenerator } from "@/components/custom/pagination-generator";
-import Title from "@/components/custom/title";
+import { EmptyState } from "@/components/custom/empty-state";
 import { ProductResult } from "@/types/product.types";
 import { cn } from "@/lib/utils";
 
@@ -62,23 +60,7 @@ export function ProductGrid({
           ))}
         </div>
       ) : products.length === 0 ? (
-        <div className="text-center py-16">
-          <Image
-            src="https://imgur.com/dVDXL8m.jpg"
-            width={200}
-            height={200}
-            alt="No products found"
-            className="mx-auto grayscale mb-4"
-          />
-          <Title text="No products found" className="text-2xl mb-2" />
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Try adjusting your search or filters to find what you're looking
-            for.
-          </p>
-          <Button onClick={onClearFilters} variant="outline">
-            Clear Filters
-          </Button>
-        </div>
+        <EmptyState type="products" onAction={onClearFilters} />
       ) : (
         <>
           <motion.div

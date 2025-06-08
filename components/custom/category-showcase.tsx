@@ -121,12 +121,12 @@ export default function CategoryShowcase() {
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
                       {category.name}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
                       {category.itemCount} items
                     </p>
 
                     {/* Arrow */}
-                    <div className="flex items-center text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
+                    <div className="flex items-center  text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
                       <span className="text-sm font-medium mr-2">Explore</span>
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                     </div>

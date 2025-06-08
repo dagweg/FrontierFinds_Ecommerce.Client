@@ -92,11 +92,11 @@ const ProductCard: React.FC<{
             height={200}
             className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
           />
-        </div>
-
+        </div>{" "}
         {/* Overlay Effects */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
+        {/* Shimmer Effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 translate-x-[-150%] group-hover:translate-x-[150%] group-hover:transition-transform group-hover:duration-700 group-hover:ease-out" />
         {/* Quick Action Button */}
         {!isMyProduct && isLoggedIn && (
           <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
@@ -119,7 +119,6 @@ const ProductCard: React.FC<{
             </Button>
           </div>
         )}
-
         {/* My Product Badge */}
         {isMyProduct && (
           <div className="absolute top-4 left-4">
@@ -129,7 +128,6 @@ const ProductCard: React.FC<{
           </div>
         )}
       </div>
-
       {/* Content Section */}
       <div
         className={cn("flex flex-col p-6 flex-1", {
@@ -149,7 +147,7 @@ const ProductCard: React.FC<{
             title={productResult.productName}
           >
             {productResult.productName}
-          </h3>
+          </h3>{" "}
           {/* Rating */}
           <div className="flex items-center gap-2 mb-3">
             <RatingDisplay rating={productResult.averageRating} starSize={14} />
@@ -157,12 +155,15 @@ const ProductCard: React.FC<{
               ({productResult.totalReviews})
             </span>
           </div>
-          {/* Description - Only for full variant */}
-          {variant === "full" && (
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3 leading-relaxed">
-              {productResult.productDescription || "No description available."}
-            </p>
-          )}{" "}
+          {/* Description - Show for both variants but with different line clamps */}
+          <p
+            className={cn(
+              "text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed",
+              isCompact ? "line-clamp-2" : "line-clamp-3"
+            )}
+          >
+            {productResult.productDescription || "No description available."}
+          </p>
           {/* Price */}
           <div className="mb-4">
             <PriceTag
@@ -176,7 +177,7 @@ const ProductCard: React.FC<{
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex items-center justify-between gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
           {/* Seller Info */}
           <div className="flex items-center gap-2">
             {user && !isMyProduct && (
@@ -211,10 +212,9 @@ const ProductCard: React.FC<{
             </Button>
           )}
         </div>
-      </div>
-
-      {/* Hover Indicator */}
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-b-2xl" />
+      </div>{" "}
+      {/* Hover Indicator - Elegant fade and expand from center */}
+      <div className="absolute bottom-0 left-1/2 w-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 group-hover:w-full group-hover:left-0 transition-all duration-500 ease-out rounded-b-2xl" />
     </div>
   );
 };

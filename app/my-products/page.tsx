@@ -3,6 +3,7 @@ import { PaginationGenerator } from "@/components/custom/pagination-generator";
 import ProductCard, {
   ProductCardLoader,
 } from "@/components/custom/product-card";
+import { EmptyState } from "@/components/custom/empty-state";
 import Title from "@/components/custom/title";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +18,6 @@ import {
 import { useEnvStore } from "@/lib/zustand/useEnvStore";
 import { useProductsStore } from "@/lib/zustand/useProductsStore";
 import { ProductResult, ProductsResult } from "@/types/product.types";
-import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -101,19 +101,13 @@ function MyProducts() {
               <ProductCardLoader variant="full" key={i} />
             ))
           ) : productsStore.productsResult.products.length === 0 ? (
-            <div className="min-h-full flex flex-col items-center py-32">
-              <Image
-                src={"https://imgur.com/dVDXL8m.jpg"}
-                width={200}
-                height={200}
-                alt="Product not found."
-                className="grayscale"
-              />
-              <Title
-                text="You don't have any products listed. Get started by creating a listing."
-                className="font-normal"
-              />
-            </div>
+            <EmptyState
+              type="general"
+              title="No products listed yet"
+              description="You don't have any products listed. Get started by creating your first listing."
+              actionLabel="Create Listing"
+              onAction={() => router.push("my-products/create-product-listing")}
+            />
           ) : (
             productsStore.productsResult.products.map((product, i) => (
               <ProductCard key={i} productResult={product} variant="full" />

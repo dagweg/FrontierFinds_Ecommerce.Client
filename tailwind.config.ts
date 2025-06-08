@@ -13,6 +13,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        futurex: ["Futurex", "system-ui", "sans-serif"],
+        poppins: ["Poppins", "sans-serif"],
         josefinSans: ["Josefin Sans", "sans-serif"],
         geist: ["Geist", "sans-serif"],
         scopeOne: ["Scope One", "sans-serif"],

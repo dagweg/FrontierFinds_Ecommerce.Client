@@ -6,6 +6,7 @@ import CartItemCard, {
 import { PaginationGenerator } from "@/components/custom/pagination-generator";
 import PriceTag from "@/components/custom/price-tag";
 import Title from "@/components/custom/title";
+import { EmptyState } from "@/components/custom/empty-state";
 import { Button } from "@/components/ui/button";
 import withAuth from "@/lib/decorators/withAuth";
 import { cn } from "@/lib/utils";
@@ -103,34 +104,13 @@ const MyCartPage: React.FC = () => {
               </Button>
             )}
           </div>
-        </div>
-
+        </div>{" "}
         {store.cart?.items?.length === 0 ? (
-          /* Empty Cart State */
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="relative mb-8">
-              <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-full flex items-center justify-center">
-                <ShoppingBasket className="w-12 h-12 text-gray-400 dark:text-gray-600" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs font-bold">0</span>
-              </div>
-            </div>
-            <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-              Your cart is empty
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-8 text-center max-w-md">
-              Looks like you haven't added any items to your cart yet. Start
-              shopping to fill it up!
-            </p>
-            <Button
-              onClick={() => router.push("/store")}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-full font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
-            >
-              <IconBasket className="w-5 h-5 mr-2" />
-              Continue Shopping
-            </Button>
-          </div>
+          <EmptyState
+            type="cart"
+            onAction={() => router.push("/store")}
+            actionLabel="Continue Shopping"
+          />
         ) : (
           /* Cart with Items */
           <div className="grid lg:grid-cols-3 gap-8">

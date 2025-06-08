@@ -1,3 +1,14 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+/* Custom Futurex Phat Font */
+@font-face {
+  font-family: "Futurex";
+  src: url("/fonts/FUTUREX_.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,6 +22,12 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+h1,
+h2 {
+  font-family: "Futurex", sans-serif;
+  @apply tracking-wide;
 }
 
 * {
@@ -378,7 +395,34 @@ html {
   animation: aurora-fade 5s ease-in-out infinite;
 }
 
-/* Enhanced hover effects */
+@layer utilities {
+  /* Futurex font utilities */
+  .font-futurex-display {
+    @apply font-futurex font-bold tracking-wider;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .font-futurex-logo {
+    @apply font-futurex font-bold tracking-wide;
+    letter-spacing: 0.15em;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Typography scales */
+  .text-hero {
+    @apply text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl;
+  }
+
+  .text-display {
+    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl;
+  }
+
+  .text-title {
+    @apply text-xl sm:text-2xl md:text-3xl;
+  }
+}
 .hover-lift {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

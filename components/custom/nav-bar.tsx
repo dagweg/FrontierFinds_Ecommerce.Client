@@ -51,8 +51,8 @@ function Navbar() {
   const productsStore = useProductsStore();
   const cartStore = useCartStore();
   const pathname = usePathname();
-
   const [query, setQuery] = useState<string>("");
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState<boolean>(false);
 
   const {
     isLoggedIn,
@@ -93,30 +93,35 @@ function Navbar() {
   return (
     <section className="border-b border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-[50] h-[80px] transition-all duration-200">
       <nav className="flex justify-between p-4 mx-auto h-full items-center max-w-7xl">
+        {" "}
         {/* Enhanced Logo */}
         <Link
           href={"/"}
-          className="text-xl font-bold dark:text-white text-center ml-4 focus:outline-none inline-flex items-center gap-3 hover-scale group transition-all duration-200"
+          className="text-xl font-bold dark:text-white text-center ml-4 focus:outline-none inline-flex items-center gap-3  group transition-all duration-200 flex-shrink-0 min-w-fit"
         >
-          <div className="relative">
+          {/* <div className="relative">
             <Image
               src={"/favicon-main.png"}
               width={50}
               height={50}
               alt="Frontier Finds Logo"
-              className="rounded-sm dark:invert w-[40px] h-[40px] group-hover:rotate-12 transition-transform duration-300"
+              className="rounded-sm dark:invert w-[40px] h-[40px]  transition-transform duration-300"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-sm blur-md opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
-          </div>
-          <span className="font-platypi text-gradient bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-            Frontier Finds
+          </div>{" "} */}
+          <span className="bg-gradient-to-r from-indigo-500 to-indigo-900 rotate-180 bg-clip-text text-transparent font-futurex text-2xl whitespace-nowrap  flex items-center h-fit  ">
+            <span className="flex flex-col space-y-[-20px]">
+              <span>&lt;&gt;&gt;</span>
+
+              <span>&lt;&gt;&gt;</span>
+              <span className="">U</span>
+            </span>
           </span>
         </Link>
-
         {/* Enhanced Search Bar */}
         <div className="hidden md:flex justify-center items-center relative w-fit max-w-lg mx-4 flex-1">
           <div className="flex justify-center items-center relative w-full group">
             <SearchIcon className="absolute left-4 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors z-10" />
+
             <input
               type="text"
               value={query}
@@ -127,10 +132,18 @@ function Navbar() {
             />
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none" />
           </div>
-        </div>
-
+        </div>{" "}
         {/* Enhanced Navigation Links */}
         <div className="flex justify-center items-center gap-6">
+          {/* Mobile Search Button */}
+          <button
+            onClick={() => setIsMobileSearchOpen(true)}
+            className="md:hidden px-4 py-2 rounded-full font-medium transition-all duration-200 hover-scale relative overflow-hidden group text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2"
+          >
+            <SearchIcon className="w-4 h-4" />
+            <span className="hidden sm:inline">Search</span>
+          </button>
+
           {/* Store Link */}
           <Link
             href={`/store`}
@@ -286,23 +299,37 @@ function Navbar() {
               <HoverBorderGradientButton text="Sign Up" logo={<></>} />
             </Link>
           )}
-        </div>
+        </div>{" "}
       </nav>
 
-      {/* Mobile Search Bar */}
-      <div className="md:hidden px-4 pb-4">
-        <div className="flex items-center relative w-full group">
-          <SearchIcon className="absolute left-4 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors z-10" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => handleSearchBoxChange(e)}
-            onKeyDown={(e) => handleSearchBoxSubmit(e)}
-            placeholder="Search products..."
-            className="w-full p-3 pl-12 pr-4 border border-gray-200 dark:border-gray-700 rounded-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200"
-          />
+      {/* Mobile Search Bar - appears when icon is clicked */}
+      {isMobileSearchOpen && (
+        <div className="md:hidden px-4 pb-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center relative w-full group">
+            <SearchIcon className="absolute left-4 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors z-10" />
+
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => handleSearchBoxChange(e)}
+              onKeyDown={(e) => handleSearchBoxSubmit(e)}
+              onBlur={() => !query && setIsMobileSearchOpen(false)}
+              autoFocus
+              placeholder="Search products..."
+              className="w-full p-3 pl-12 pr-12 border border-gray-200 dark:border-gray-700 rounded-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200"
+            />
+            <button
+              onClick={() => {
+                setIsMobileSearchOpen(false);
+                setQuery("");
+              }}
+              className="absolute right-3 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            >
+              ×
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }
