@@ -3,7 +3,6 @@
 import Title from "@/components/custom/title";
 import { useEnvStore } from "@/lib/zustand/useEnvStore";
 import { ProductResult } from "@/types/product.types";
-import { url } from "inspector";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useLayoutEffect } from "react";

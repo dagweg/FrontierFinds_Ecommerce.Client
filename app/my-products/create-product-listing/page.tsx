@@ -1,188 +1,46 @@
 "use client";
 
-import Title from "@/components/custom/title";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { LabelInputContainer } from "@/components/ui/label-input-container";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { ChevronsUpDown, Check, Trash, Router } from "lucide-react";
-import Image from "next/image";
 import React, {
   useState,
-  useEffect,
   useCallback,
-  Dispatch,
-  SetStateAction,
   useLayoutEffect,
-} from "react"; // Import useCallback
-import { Button } from "@/components/ui/button";
+  useEffect,
+} from "react";
 import { useEnvStore } from "@/lib/zustand/useEnvStore";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { cn } from "@/lib/utils";
-import { Checkbox } from "@/components/ui/checkbox";
-import { CheckedState } from "@radix-ui/react-checkbox";
-import { toast, Toaster, useSonner } from "sonner";
+import { toast, Toaster } from "sonner";
 import { useRouter } from "next/navigation";
-import { IconCancel } from "@tabler/icons-react";
+import { motion, AnimatePresence } from "motion/react";
+import {
+  CheckCircle,
+  FileText,
+  DollarSign,
+  Package,
+  Images,
+  Eye,
+  ArrowRight,
+  Trash,
+  ShoppingCart,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
-interface ChooseSubcategoryComboboxProps {
-  categories: CategoryResult[];
-  selectedParentCategories: number[];
-  selectedSubCategories: number[];
-  setSelectedSubCategories: Dispatch<SetStateAction<number[]>>;
-  onSubcategoriesChange: (subcategoryIds: number[]) => void;
-  initialSubcategories: number[];
-  allCategoriesList: CategoryResult[];
-}
+// Import components
+import {
+  CreateListingForm,
+  ValidationErrors,
+  Step,
+  ImageFieldKey,
+  CategoriesResult,
+} from "./components/types";
+import { StepNavigation } from "./components/StepNavigation";
+import { ProductPreview } from "./components/ProductPreview";
+import { validateForm, createFormData } from "./components/utils";
 
-function ChooseSubcategoryCombobox({
-  categories,
-  selectedParentCategories,
-  selectedSubCategories,
-  setSelectedSubCategories,
-  onSubcategoriesChange,
-  initialSubcategories,
-  allCategoriesList,
-}: ChooseSubcategoryComboboxProps) {
-  const [open, setOpen] = React.useState(false);
-  const subCategories = categories
-    .filter((p) => selectedParentCategories.includes(p.id))
-    .flatMap((x) => x.subCategories);
-
-  const handleSubcategorySelect = (subcategoryId: number) => {
-    setSelectedSubCategories((currentValues) =>
-      currentValues.includes(subcategoryId)
-        ? currentValues.filter((v) => v !== subcategoryId)
-        : [...currentValues, subcategoryId]
-    );
-  };
-
-  useEffect(() => {
-    setSelectedSubCategories([]);
-  }, [allCategoriesList]);
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="space-y-1 max-w-full">
-        {selectedSubCategories.length > 0 &&
-          selectedSubCategories
-            .map((id) =>
-              allCategoriesList
-                .flatMap((c) => c.subCategories)
-                .find((subCat) => subCat.id === id && subCat.id !== null)
-            )
-            .map((c) => (
-              <div
-                className="inline-block mx-1 ring-2 ring-transparent hover:opacity-25 bg-black text-white px-4 h-6 cursor-pointer rounded-full "
-                onClick={() => handleSubcategorySelect(c?.id!)}
-              >
-                {c?.name}
-              </div>
-            ))}
-      </div>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-[300px] justify-between"
-          >
-            Select subcategories...
-            <ChevronsUpDown className="opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[300px] p-0">
-          <Command>
-            <CommandInput placeholder="Search subcategory..." className="h-9" />
-            <CommandList>
-              {subCategories.length > 0 ? (
-                subCategories
-                  .filter((s) => !selectedSubCategories.includes(s.id))
-                  .map((s) => (
-                    <CommandItem onSelect={() => handleSubcategorySelect(s.id)}>
-                      {s.name}
-                    </CommandItem>
-                  ))
-              ) : (
-                <CommandEmpty>No subcategory found.</CommandEmpty>
-              )}
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    </div>
-  );
-}
-
-interface CreateImageRequest {
-  imageFile?: File;
-}
-
-interface CreateListingForm {
-  productName: string;
-  productDescription: string;
-  stockQuantity: number;
-  priceValueInCents: number;
-  priceCurrency: string;
-  thumbnail: CreateImageRequest;
-  leftImage: CreateImageRequest;
-  rightImage: CreateImageRequest;
-  frontImage: CreateImageRequest;
-  backImage: CreateImageRequest;
-  topImage: CreateImageRequest;
-  bottomImage: CreateImageRequest;
-  categories: number[]; // Changed to array of category IDs
-  tags: string[];
-}
-
-type ImageFieldKey =
-  | "thumbnail"
-  | "leftImage"
-  | "rightImage"
-  | "frontImage"
-  | "backImage"
-  | "topImage"
-  | "bottomImage";
-
-interface ValidationErrors {
-  [key: string]: string[];
-}
-
-export interface CategoryResult {
-  id: number;
-  name: string;
-  slug: string;
-  parentId: number | null;
-  subCategories: CategoryResult[];
-  checked: boolean;
-  expanded: boolean;
-  isActive: boolean;
-}
-
-export interface CategoriesResult {
-  categories: CategoryResult[];
-}
+// Import step components
+import { BasicInfoStep } from "./components/steps/BasicInfoStep";
+import { PricingStep } from "./components/steps/PricingStep";
+import { CategoriesStep } from "./components/steps/CategoriesStep";
+import { ImagesStep } from "./components/steps/ImagesStep";
 
 const emptyListing: CreateListingForm = {
   productName: "",
@@ -197,23 +55,70 @@ const emptyListing: CreateListingForm = {
   backImage: { imageFile: undefined },
   topImage: { imageFile: undefined },
   bottomImage: { imageFile: undefined },
-  categories: [], // categories will store IDs of categories and subcategories
+  categories: [],
   tags: [],
 };
 
 function CreateProductListingPage() {
   const env = useEnvStore();
+  const router = useRouter();
 
   const [listing, setListing] = useState<CreateListingForm>(emptyListing);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
 
-  const [allCategories, setAllCategories] = useState<CategoryResult[]>([]);
+  const [allCategories, setAllCategories] = useState<any[]>([]);
   const [subCategories, setSubcategories] = useState<number[]>([]);
 
-  const router = useRouter();
-
   let validImageTypes: string[] = [];
+  // Steps configuration
+  const steps = [
+    {
+      id: 1,
+      title: "Basic Info",
+      icon: FileText,
+      description: "Product name and description",
+    },
+    {
+      id: 2,
+      title: "Pricing",
+      icon: DollarSign,
+      description: "Set price and inventory",
+    },
+    {
+      id: 3,
+      title: "Categories",
+      icon: Package,
+      description: "Choose categories and tags",
+    },
+    {
+      id: 4,
+      title: "Images",
+      icon: Images,
+      description: "Upload product images",
+    },
+    { id: 5, title: "Review", icon: Eye, description: "Review and publish" },
+  ];
+
+  const totalSteps = steps.length;
+
+  // Step Navigation
+  const nextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const goToStep = (step: number) => {
+    setCurrentStep(step);
+  };
 
   useLayoutEffect(() => {
     const fetchImageMimes = async () => {
@@ -236,9 +141,6 @@ function CreateProductListingPage() {
   });
 
   useEffect(() => {
-    console.log(
-      "CreateProductListingPage: useEffect [env.apiBaseUrl] - Fetching Categories"
-    );
     const fetchCategories = async () => {
       try {
         const response = await fetch(`${env.apiBaseUrl}/products/categories`, {
@@ -254,16 +156,10 @@ function CreateProductListingPage() {
             ...cat,
           }));
           setAllCategories(initialCategories);
-          console.log(
-            "CreateProductListingPage: Categories fetched and set",
-            initialCategories
-          );
+          console.log("Categories fetched and set", initialCategories);
         }
       } catch (error) {
-        console.error(
-          "CreateProductListingPage: Failed to fetch categories:",
-          error
-        );
+        console.error("Failed to fetch categories:", error);
       }
     };
 
@@ -291,8 +187,8 @@ function CreateProductListingPage() {
           ...prev,
           [field]: [errmsg],
         }));
-        e.target.value = ""; // Clear the input field
-        return; // Exit early if the file type is invalid
+        e.target.value = "";
+        return;
       }
 
       setListing((prev) => ({
@@ -303,41 +199,12 @@ function CreateProductListingPage() {
     }
   };
 
-  const getImagePreview = (imageFile?: File) => {
-    return imageFile ? URL.createObjectURL(imageFile) : "";
-  };
-
-  const validateForm = () => {
-    const newErrors: ValidationErrors = {};
-
-    // if (!listing.productName.trim()) {
-    //   newErrors.ProductName = ["The ProductName field is required."];
-    // }
-    // if (!listing.productDescription.trim()) {
-    //   newErrors.ProductDescription = [
-    //     "The ProductDescription field is required.",
-    //   ];
-    // }
-    // if (listing.stockQuantity < 1) {
-    //   newErrors.StockQuantity = ["Stock quantity must be greater than 1"];
-    // }
-    // if (listing.priceValueInCents <= 1) {
-    //   newErrors.PriceValueInCents = ["Price value must be greater than 1"];
-    // }
-    // if (!listing.priceCurrency) {
-    //   newErrors.PriceCurrency = ["The PriceCurrency field is required."];
-    // }
-    // if (!listing.thumbnail.imageFile) {
-    //   newErrors.Thumbnail = ["The Thumbnail field is required."];
-    // }
-    // if (listing.categories.length === 0) {
-    //   newErrors.Categories = [
-    //     "At least one Category or Subcategory is required.",
-    //   ];
-    // }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const handleRemoveImage = (field: ImageFieldKey) => {
+    setListing((prev) => ({
+      ...prev,
+      [field]: { imageFile: undefined },
+    }));
+    setErrors((prev) => ({ ...prev, [field]: [] }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -346,43 +213,12 @@ function CreateProductListingPage() {
     setIsSubmitting(true);
     setErrors({});
 
-    if (!validateForm()) {
+    if (!validateForm(listing, setErrors)) {
       setIsSubmitting(false);
       return;
     }
 
-    const formData = new FormData();
-    formData.append("productName", listing.productName);
-    formData.append("productDescription", listing.productDescription);
-    formData.append("stockQuantity", listing.stockQuantity.toString());
-    formData.append("priceValueInCents", listing.priceValueInCents.toString());
-    formData.append("priceCurrency", listing.priceCurrency);
-    if (listing.thumbnail.imageFile) {
-      formData.append("thumbnail.imageFile", listing.thumbnail.imageFile);
-    }
-
-    allCategories
-      .filter((x) => x.checked)
-      .map((x) => x.id)
-      .concat(subCategories)
-      .forEach((categoryId) =>
-        formData.append("categories[]", categoryId.toString())
-      );
-
-    listing.tags.forEach((t) => formData.append("tags[]", t));
-
-    // Add optional images if they exist
-    const optionalImages: ImageFieldKey[] = [
-      "leftImage",
-      "rightImage",
-      "frontImage",
-      "backImage",
-      "topImage",
-      "bottomImage",
-    ];
-    optionalImages.forEach((field) => {
-      formData.append(`${field}.imageFile`, listing[field].imageFile!);
-    });
+    const formData = createFormData(listing, allCategories, subCategories);
 
     console.log(formData);
     try {
@@ -399,13 +235,11 @@ function CreateProductListingPage() {
         console.log("ERROR OCCURED");
         toast("An error occured", {
           description: body.detail,
-          icon: <IconCancel size={24} />,
         });
       } else {
-        // setListing(emptyListing);
         toast("Product has been created", {
           description: "Product created successfully",
-          icon: <Check size={24} />,
+          icon: <CheckCircle size={24} />,
           action: {
             label: "View Product",
             onClick: () => router.push(`/my-products/${body.slug}`),
@@ -422,7 +256,7 @@ function CreateProductListingPage() {
 
   const handleCategoryChange = (categoryName: string, isChecked: boolean) => {
     console.log(
-      `CreateProductListingPage: handleCategoryChange - Category: ${categoryName}, Checked: ${isChecked}`
+      `handleCategoryChange - Category: ${categoryName}, Checked: ${isChecked}`
     );
 
     // Update allCategories state
@@ -433,36 +267,23 @@ function CreateProductListingPage() {
       return cat;
     });
     setAllCategories(updatedAllCategories);
-    console.log(
-      "CreateProductListingPage: setAllCategories - updatedCategories:",
-      updatedAllCategories
-    );
 
     // Directly derive selected category IDs from the updatedAllCategories
     const selectedCategoryIds: number[] = [];
     updatedAllCategories.forEach((cat) => {
-      // Use updatedAllCategories here
       if (cat.checked) {
         selectedCategoryIds.push(cat.id);
         if (cat.subCategories) {
-          cat.subCategories.forEach((subCat) => {
+          cat.subCategories.forEach((subCat: any) => {
             selectedCategoryIds.push(subCat.id);
           });
         }
       }
     });
-    console.log(
-      "CreateProductListingPage: Categories before setListing:",
-      listing.categories,
-      "New Categories to set:",
-      selectedCategoryIds
-    );
+
     setListing((prevListing) => {
       const newListing = { ...prevListing, categories: selectedCategoryIds };
-      console.log(
-        "CreateProductListingPage: setListing - categories:",
-        newListing.categories
-      );
+      console.log("setListing - categories:", newListing.categories);
       return newListing;
     });
   };
@@ -471,7 +292,7 @@ function CreateProductListingPage() {
   const handleSubcategoriesChange = useCallback(
     (subcategoryIds: number[]) => {
       console.log(
-        "CreateProductListingPage: handleSubcategoriesChange - subcategoryIds:",
+        "handleSubcategoriesChange - subcategoryIds:",
         subcategoryIds
       );
       setListing((prevListing) => {
@@ -480,362 +301,229 @@ function CreateProductListingPage() {
             (catId) =>
               !allCategories
                 .flatMap((c) => c.subCategories)
-                .map((sc) => sc.id)
+                .map((sc: any) => sc.id)
                 .includes(catId)
           ),
           ...subcategoryIds,
         ];
         const newListing = { ...prevListing, categories: newCategories };
         console.log(
-          "CreateProductListingPage: setListing - categories (from subcategories):",
+          "setListing - categories (from subcategories):",
           newListing.categories
         );
         return newListing;
       });
     },
     [allCategories]
-  ); // Dependencies for useCallback -  `allCategories` might be needed if filtering logic relies on it.
+  );
+
+  const handleSubmitWrapper = () => {
+    const mockEvent = { preventDefault: () => {} } as React.FormEvent;
+    handleSubmit(mockEvent);
+  };
+
+  // Get selected categories for display
+  const selectedCategories = allCategories.filter((cat) => cat.checked);
 
   return (
-    <section className="h-screen min-h-fit bg-white p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <Toaster />
-      <div className="max-w-[1800px] mx-auto p-4 flex flex-col">
-        <Title text="Create Product Listing" className="text-3xl" />
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <LabelInputContainer className="mb-4" error={errors.ProductName?.[0]}>
-            <Label htmlFor="productName">Product Name *</Label>
-            <Input
-              id="productName"
-              placeholder="Lenovo Legion 5 Gaming Laptop"
-              type="text"
-              className="w-[500px]"
-              value={listing.productName}
-              onChange={(e) =>
-                setListing((prev) => ({ ...prev, productName: e.target.value }))
-              }
-            />
-          </LabelInputContainer>
 
-          <LabelInputContainer
-            className="mb-4"
-            error={errors.ProductDescription?.[0]}
-          >
-            <Label htmlFor="productDescription">Product Description *</Label>
-            <Textarea
-              id="productDescription"
-              placeholder="13th Gen Intel Core i7-13650HX..."
-              className="h-[100px]"
-              value={listing.productDescription}
-              onChange={(e) =>
-                setListing((prev) => ({
-                  ...prev,
-                  productDescription: e.target.value,
-                }))
-              }
-            />
-          </LabelInputContainer>
-
-          <div className="inline-flex gap-5">
-            <LabelInputContainer
-              className="mb-4"
-              error={errors.StockQuantity?.[0]}
-            >
-              <Label htmlFor="stockQuantity">Stock Quantity</Label>
-              <Input
-                id="stockQuantity"
-                type="number"
-                className="w-[100px]"
-                value={listing.stockQuantity}
-                onChange={(e) =>
-                  setListing((prev) => ({
-                    ...prev,
-                    stockQuantity: Math.max(1, Number(e.target.value)),
-                  }))
-                }
-              />
-            </LabelInputContainer>
-            <LabelInputContainer
-              className="mb-4"
-              error={errors.PriceValueInCents?.[0]}
-            >
-              <Label htmlFor="price">Price *</Label>
-              <Input
-                id="price"
-                type="number"
-                min={0}
-                className="w-[200px]"
-                value={listing.priceValueInCents / 100}
-                onChange={(e) =>
-                  setListing((prev) => ({
-                    ...prev,
-                    priceValueInCents: Math.max(
-                      1,
-                      Number(e.target.value) * 100
-                    ),
-                  }))
-                }
-              />
-            </LabelInputContainer>
-            <LabelInputContainer
-              className="mb-4"
-              error={errors.PriceCurrency?.[0]}
-            >
-              <Label htmlFor="priceCurrency">Price Currency</Label>
-              <Select
-                value={listing.priceCurrency}
-                onValueChange={(value) =>
-                  setListing((prev) => ({ ...prev, priceCurrency: value }))
-                }
-              >
-                <SelectTrigger className="w-[180px]"> 
-                  <SelectValue placeholder="Select currency" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="USD">USD</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </LabelInputContainer>
-          </div>
-
-          {/* Categories Selection */}
-          <div className="flex justify-start gap-3 items-center">
-            <Label className="mb-2 block">Categories *</Label>
-            <Trash
-              size={15}
-              onClick={() =>
-                setAllCategories(
-                  allCategories.map((c) => ({
-                    ...c,
-                    checked: false,
-                  }))
-                )
-              }
-            />
-          </div>
-          <div className="mb-4 grid grid-cols-3 gap-4 border rounded-md p-4">
-            {allCategories
-              .filter((cat) => cat.parentId === null)
-              .map((category) => (
-                <div key={category.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`category-${category.id}`}
-                    checked={category.checked}
-                    onCheckedChange={(checked: CheckedState) => {
-                      handleCategoryChange(category.name, checked === true);
-                    }}
-                  />
-                  <Label
-                    htmlFor={`category-${category.id}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {category.name}
-                  </Label>
-                </div>
-              ))}
-            {errors.Categories &&
-              errors.Categories.map((error, index) => (
-                <p key={index} className="text-red-500 text-sm">
-                  {error}
-                </p>
-              ))}
-          </div>
-
-          {/* Subcategories Selection */}
-          <LabelInputContainer className="mb-4" error={errors.Categories?.[0]}>
-            <div className="flex justify-start gap-3 items-center">
-              <Label htmlFor="subcategories">Subcategories</Label>
-              <Trash size={15} onClick={() => setSubcategories([])} />
+      {/* Header */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Create Product Listing
+              </h1>
+              <p className="mt-2 text-gray-600 dark:text-gray-400">
+                Add your product to reach thousands of potential buyers
+              </p>
             </div>
-            <ChooseSubcategoryCombobox
-              setSelectedSubCategories={setSubcategories}
-              selectedSubCategories={subCategories}
-              categories={allCategories}
-              selectedParentCategories={allCategories
-                .filter((cat) => cat.checked && cat.parentId === null)
-                .map((cat) => cat.id)}
-              onSubcategoriesChange={handleSubcategoriesChange} // Use useCallback function
-              initialSubcategories={listing.categories.filter((catId) =>
-                allCategories
-                  .flatMap((c) => c.subCategories)
-                  .map((sc) => sc.id)
-                  .includes(catId)
-              )}
-              allCategoriesList={allCategories}
-            />
-            {errors.Categories &&
-              errors.Categories.map((error, index) => (
-                <p key={index} className="text-red-500 text-sm">
-                  {error}
-                </p>
-              ))}
-          </LabelInputContainer>
-
-          {/* Thumbnail Image Upload */}
-          <LabelInputContainer
-            error={errors.Thumbnail?.[0]}
-            className="my-6 w-[300px] h-[200px] relative"
-          >
-            <Label htmlFor="thumbnail">Thumbnail Image *</Label>
-            {listing.thumbnail.imageFile ? (
-              <>
+            <div className="flex items-center gap-4">
+              <Badge variant="outline" className="px-3 py-1">
+                Step {currentStep} of {totalSteps}
+              </Badge>
+              <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                 <div
-                  onClick={() =>
-                    setListing({
-                      ...listing,
-                      thumbnail: { imageFile: undefined },
-                    })
-                  }
-                  className="absolute right-0 top-0 hover:bg-neutral-200 p-2 rounded-full cursor-pointer active:ring-2 ring-neutral-300"
-                >
-                  <Trash size={15} />
-                </div>
-                <Image
-                  src={getImagePreview(listing.thumbnail.imageFile)}
-                  width={300}
-                  height={200}
-                  alt="Thumbnail preview"
-                  className="w-full h-full object-contain"
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${(currentStep / totalSteps) * 100}%` }}
                 />
-              </>
-            ) : (
-              <Input
-                id="thumbnail"
-                type="file"
-                accept="image/*"
-                className="w-full h-full"
-                onChange={(e) => handleFileChange(e, "thumbnail")}
-              />
-            )}
-          </LabelInputContainer>
-
-          {/* Additional Images */}
-          <div className="w-full overflow-scroll scrollbar-hide">
-            <div className="flex gap-5 w-fit overflow-scroll">
-              {(
-                [
-                  { id: "leftImage", label: "Left Image" },
-                  { id: "rightImage", label: "Right Image" },
-                  { id: "frontImage", label: "Front Image" },
-                  { id: "backImage", label: "Back Image" },
-                  { id: "topImage", label: "Top Image" },
-                  { id: "bottomImage", label: "Bottom Image" },
-                ] as const
-              ).map((image) => (
-                <LabelInputContainer
-                  key={image.id}
-                  error={errors[image.id]?.[0]}
-                  className="my-6 w-[300px] h-[200px] relative"
-                >
-                  <Label htmlFor={image.id}>{image.label}</Label>
-                  {listing[image.id].imageFile ? (
-                    <>
-                      <div
-                        onClick={() =>
-                          setListing({
-                            ...listing,
-                            [image.id]: { imageFile: undefined },
-                          })
-                        }
-                        className="absolute right-0 top-0 hover:bg-neutral-200 p-2 rounded-full cursor-pointer active:ring-2 ring-neutral-300"
-                      >
-                        <Trash size={15} />
-                      </div>
-                      <Image
-                        src={getImagePreview(listing[image.id].imageFile)}
-                        width={300}
-                        height={200}
-                        alt={`${image.label} preview`}
-                        className="w-full h-full object-contain"
-                      />
-                    </>
-                  ) : (
-                    <Input
-                      id={image.id}
-                      type="file"
-                      accept="image/*"
-                      className="w-full h-full"
-                      onChange={(e) => handleFileChange(e, image.id)}
-                    />
-                  )}
-                </LabelInputContainer>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="inline-flex gap-3">
-              <Label htmlFor="tags">Tags (Optional)</Label>{" "}
-              <Trash
-                size={15}
-                onClick={() => setListing({ ...listing, tags: [] })}
-              />
-            </div>
-            <br />
-            {listing.tags.map((t) => (
-              <div
-                className="inline-block mx-1 ring-2 ring-transparent hover:opacity-25 bg-neutral-200  px-4 h-6 cursor-pointer rounded-md"
-                onClick={() => {
-                  setListing((prev) => ({
-                    ...prev,
-                    tags: prev.tags.filter((tag) => tag !== t),
-                  }));
-                }}
-              >
-                #{t}
               </div>
-            ))}
-
-            <LabelInputContainer
-              error={errors.Tags?.[0]}
-              className="my-6  relative"
-            >
-              <Input
-                type="text"
-                placeholder="Tags"
-                onChange={(e) => {
-                  if (e.target.value[e.target.value.length - 1] === ",") {
-                    setListing((prev) => {
-                      let tag = e.target.value
-                        .slice(0, -1)
-                        .trim()
-                        .split(" ")
-                        .join("-");
-                      if (prev.tags.includes(tag)) return prev; // don't add duplicates
-                      return {
-                        ...prev,
-                        tags: [...prev.tags, tag],
-                      };
-                    });
-                    e.target.value = "";
-                  }
-                }}
-              />
-            </LabelInputContainer>
+            </div>
+          </div>{" "}
+          {/* Step Navigation */}
+          <div className="mt-8">
+            <StepNavigation
+              steps={steps}
+              currentStep={currentStep}
+              onStepChange={goToStep}
+              canGoNext={currentStep < totalSteps}
+              canGoPrev={currentStep > 1}
+              onNext={nextStep}
+              onPrev={prevStep}
+              isLastStep={currentStep === totalSteps}
+              onSubmit={handleSubmitWrapper}
+              isSubmitting={isSubmitting}
+            />
           </div>
+        </div>
+      </div>
 
-          <div className="flex gap-3 justify-between items-center">
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <form onSubmit={handleSubmit}>
+          <AnimatePresence mode="wait">
+            {/* Step 1: Basic Info */}
+            {currentStep === 1 && (
+              <motion.div
+                key="step1"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                className="space-y-8"
+              >
+                <BasicInfoStep
+                  listing={listing}
+                  setListing={setListing}
+                  errors={errors}
+                />
+              </motion.div>
+            )}
+
+            {/* Step 2: Pricing */}
+            {currentStep === 2 && (
+              <motion.div
+                key="step2"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                className="space-y-8"
+              >
+                <PricingStep
+                  listing={listing}
+                  setListing={setListing}
+                  errors={errors}
+                />
+              </motion.div>
+            )}
+
+            {/* Step 3: Categories */}
+            {currentStep === 3 && (
+              <motion.div
+                key="step3"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                className="space-y-8"
+              >
+                {" "}
+                <CategoriesStep
+                  listing={listing}
+                  setListing={setListing}
+                  errors={errors}
+                  allCategories={allCategories}
+                  selectedCategories={selectedCategories}
+                  subCategories={subCategories}
+                  setSubCategories={setSubcategories}
+                  onCategoryChange={handleCategoryChange}
+                  onSubcategoriesChange={handleSubcategoriesChange}
+                />
+              </motion.div>
+            )}
+
+            {/* Step 4: Images */}
+            {currentStep === 4 && (
+              <motion.div
+                key="step4"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                className="space-y-8"
+              >
+                {" "}
+                <ImagesStep
+                  listing={listing}
+                  setListing={setListing}
+                  errors={errors}
+                  onFileChange={handleFileChange}
+                  onRemoveImage={handleRemoveImage}
+                />
+              </motion.div>
+            )}
+
+            {/* Step 5: Review */}
+            {currentStep === 5 && (
+              <motion.div
+                key="step5"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                className="space-y-8"
+              >
+                {" "}
+                <ProductPreview
+                  listing={listing}
+                  selectedCategories={selectedCategories}
+                  subCategories={subCategories}
+                  allCategories={allCategories}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Navigation Buttons */}
+          <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
             <Button
               type="button"
-              disabled={isSubmitting}
-              className="w-[300px] p-5 self-start my-10 bg-neutral-200"
-              variant={"secondary"}
-              onClick={() => setListing(emptyListing)}
+              variant="outline"
+              onClick={prevStep}
+              disabled={currentStep === 1}
+              className="flex items-center gap-2 h-12 px-6"
             >
-              Clear
+              Previous
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-[300px] p-5 self-start my-10"
-            >
-              {isSubmitting ? "Submitting..." : "Submit Product"}
-            </Button>
+
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setListing(emptyListing)}
+                className="h-12 px-6 text-gray-600 hover:text-red-600"
+              >
+                Clear All
+              </Button>
+
+              {currentStep < totalSteps ? (
+                <Button
+                  type="button"
+                  onClick={nextStep}
+                  className="flex items-center gap-2 h-12 px-6 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                >
+                  Next
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex items-center gap-2 h-12 px-8 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Publishing...
+                    </>
+                  ) : (
+                    "Publish Product"
+                  )}
+                </Button>
+              )}
+            </div>
           </div>
         </form>
       </div>
-    </section>
+    </div>
   );
 }
 

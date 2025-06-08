@@ -1,5 +1,4 @@
 "use client";
-import page from "@/app/page";
 import { PaginationGenerator } from "@/components/custom/pagination-generator";
 import ProductCard, {
   ProductCardLoader,

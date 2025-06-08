@@ -17,6 +17,7 @@ import {
 import { useEnvStore } from "@/lib/zustand/useEnvStore";
 import { useSession } from "@/components/providers/session-provider";
 import { ProductResult } from "@/types/product.types";
+import { UserResult, AddressResult } from "@/types/user.types";
 import { Edit, Edit2, Edit3, EditIcon } from "lucide-react";
 
 interface Purchase {

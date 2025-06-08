@@ -32,6 +32,7 @@ import Link from "next/link";
 import withAuth from "@/lib/decorators/withAuth";
 import { IconBrandStripeFilled } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
+import { LabelInputContainer } from "@/components/ui/label-input-container";
 
 const Checkout: React.FC = () => {
   const store = useCartStore();
@@ -718,19 +719,31 @@ const Checkout: React.FC = () => {
                         Phone Number
                       </Label>
                       <div className="flex items-center space-x-2">
-                        <span className="text-2xl">{flagEmoji}</span>
-                        <Input
-                          id="phone"
-                          value={phoneNumber}
-                          onChange={handlePhoneNumberChange}
-                          className={cn(
-                            "flex-1 transition-colors duration-200",
-                            errors["ShippingAddress.phone"]
-                              ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                              : "border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500"
-                          )}
-                          placeholder="+1 (555) 123-4567"
-                        />
+                        <LabelInputContainer
+                          className="mb-4 flex-1"
+                          error={errors?.PhoneNumber?.[0]}
+                        >
+                          <div className="relative grid grid-rows-1 w-full ">
+                            <Input
+                              id="phone"
+                              placeholder="Enter international format number "
+                              className="!w-full "
+                              type="tel"
+                              value={phoneNumber}
+                              onChange={handlePhoneNumberChange}
+                            />
+
+                            {flagEmoji && (
+                              <Image
+                                src={flagEmoji}
+                                width={30}
+                                height={30}
+                                alt=""
+                                className="absolute right-4  h-full"
+                              />
+                            )}
+                          </div>
+                        </LabelInputContainer>
                       </div>
                       {errors["ShippingAddress.phone"] && (
                         <p className="text-red-500 text-sm flex items-center mt-1">

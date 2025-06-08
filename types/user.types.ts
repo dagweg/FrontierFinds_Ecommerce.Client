@@ -1,4 +1,4 @@
-interface AuthenticationResult {
+export interface AuthenticationResult {
   readonly id: string;
   readonly firstName: string;
   readonly lastName: string;
@@ -6,20 +6,20 @@ interface AuthenticationResult {
   readonly token: string;
 }
 
-type AddressResult = {
+export interface AddressResult {
   street: string;
   city: string;
   state: string;
   country: string;
   zipCode: string;
-};
+}
 
-type ProfileImageResult = {
+export interface ProfileImageResult {
   url: string;
   objectIdentifier: string;
-} | null; //  Allow null, as per original data
+}
 
-type UserResult = {
+export interface UserResult {
   userId: string;
   firstName: string;
   lastName: string;
@@ -27,5 +27,5 @@ type UserResult = {
   phoneNumber: string;
   address: AddressResult;
   accountVerified: boolean;
-  profileImage: ProfileImageResult;
-};
+  profileImage: ProfileImageResult | null;
+}
