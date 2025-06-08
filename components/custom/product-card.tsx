@@ -17,6 +17,7 @@ import { useCartStore } from "@/lib/zustand/useCartStore";
 import RatingDisplay from "@/components/custom/rating-display";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/components/providers/session-provider";
+import { UserResult } from "@/types/user.types";
 
 const ProductCard: React.FC<{
   productResult: ProductResult;
