@@ -28,7 +28,8 @@ const AmazonZoomImage: React.FC<AmazonZoomImageProps> = ({
   lensSize = 120,
   zoomWindowSize = 400,
   showZoomText = true,
-}) => {  const [isZoomed, setIsZoomed] = useState(false);
+}) => {
+  const [isZoomed, setIsZoomed] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -39,11 +40,11 @@ const AmazonZoomImage: React.FC<AmazonZoomImageProps> = ({
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
     };
-    
+
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   const handleMouseEnter = useCallback(() => {
@@ -70,24 +71,38 @@ const AmazonZoomImage: React.FC<AmazonZoomImageProps> = ({
     }
   }, [isMobile]);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!imageRef.current || isMobile) return;
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!imageRef.current || isMobile) return;
 
-    const rect = imageRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
-    if (!imageRef.current || !isMobile) return;
+      const rect = imageRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
 
-    const rect = imageRef.current.getBoundingClientRect();
-    const touch = e.touches[0];
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
+      setPosition({
+        x: Math.max(0, Math.min(x, width)),
+        y: Math.max(0, Math.min(y, height)),
+      });
+    },
+    [width, height, isMobile]
+  );
 
-    setPosition({
-      x: Math.max(0, Math.min(x, width)),
-      y: Math.max(0, Math.min(y, height)),
-    });
-  }, [width, height, isMobile]);
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      if (!imageRef.current || !isMobile) return;
+
+      const rect = imageRef.current.getBoundingClientRect();
+      const touch = e.touches[0];
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+
+      setPosition({
+        x: Math.max(0, Math.min(x, width)),
+        y: Math.max(0, Math.min(y, height)),
+      });
+    },
+    [width, height, isMobile]
+  );
 
   // Calculate the lens position
   const getLensPosition = useCallback(() => {
@@ -105,20 +120,50 @@ const AmazonZoomImage: React.FC<AmazonZoomImageProps> = ({
 
   // Calculate the background position for the zoomed image
   const getZoomPosition = useCallback(() => {
-    const backgroundX = (position.x / width) * (width * zoomFactor - zoomWindowSize);
-    const backgroundY = (position.y / height) * (height * zoomFactor - zoomWindowSize);
-    
+    // Calculate the actual image dimensions within the container (accounting for padding)
+    const containerPadding = 32; // 8 * 4px (p-4 class = 1rem = 16px on each side)
+    const actualImageWidth = width - containerPadding;
+    const actualImageHeight = height - containerPadding;
+
+    // Calculate zoom background size maintaining aspect ratio
+    const zoomedWidth = actualImageWidth * zoomFactor;
+    const zoomedHeight = actualImageHeight * zoomFactor;
+
+    // Calculate position relative to the actual image area (accounting for padding)
+    const relativeX = Math.max(
+      0,
+      Math.min(position.x - containerPadding / 2, actualImageWidth)
+    );
+    const relativeY = Math.max(
+      0,
+      Math.min(position.y - containerPadding / 2, actualImageHeight)
+    );
+
+    const backgroundX =
+      (relativeX / actualImageWidth) * (zoomedWidth - zoomWindowSize);
+    const backgroundY =
+      (relativeY / actualImageHeight) * (zoomedHeight - zoomWindowSize);
+
     return {
-      backgroundX: Math.max(0, Math.min(backgroundX, width * zoomFactor - zoomWindowSize)),
-      backgroundY: Math.max(0, Math.min(backgroundY, height * zoomFactor - zoomWindowSize))
+      backgroundX: Math.max(
+        0,
+        Math.min(backgroundX, zoomedWidth - zoomWindowSize)
+      ),
+      backgroundY: Math.max(
+        0,
+        Math.min(backgroundY, zoomedHeight - zoomWindowSize)
+      ),
+      zoomedWidth,
+      zoomedHeight,
     };
   }, [position.x, position.y, width, height, zoomFactor, zoomWindowSize]);
 
-  const { backgroundX, backgroundY } = getZoomPosition();
+  const { backgroundX, backgroundY, zoomedWidth, zoomedHeight } =
+    getZoomPosition();
   return (
-    <div className={`flex gap-4 lg:gap-6 ${containerClassName}`}>
+    <div className={`flex gap-2 lg:gap-4 ${containerClassName}`}>
       {/* Main Image Container */}
-      <div className="relative flex-shrink-0">
+      <div className="relative flex-shrink-0 max-w-full">
         <div
           ref={imageRef}
           onMouseEnter={handleMouseEnter}
@@ -127,21 +172,27 @@ const AmazonZoomImage: React.FC<AmazonZoomImageProps> = ({
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           onTouchMove={handleTouchMove}
-          className={`relative overflow-hidden cursor-crosshair border border-gray-200 rounded-lg shadow-sm transition-all duration-200 ${
-            isZoomed ? 'shadow-lg border-blue-300' : 'hover:shadow-md hover:border-gray-300'
+          className={`relative overflow-hidden cursor-crosshair border border-gray-200 rounded-lg shadow-sm transition-all duration-200 bg-white ${
+            isZoomed
+              ? "shadow-lg border-blue-300"
+              : "hover:shadow-md hover:border-gray-300"
           }`}
-          style={{ width: `${width}px`, height: `${height}px` }}
+          style={{
+            width: `${width}px`,
+            height: `${height}px`,
+            maxWidth: "100%",
+          }}
         >
           <Image
             src={src}
             alt={alt}
             width={width}
             height={height}
-            className={`object-contain transition-opacity duration-200 ${className}`}
+            className={`w-full h-full object-contain transition-opacity duration-200 p-4 ${className}`}
             onLoadingComplete={() => setIsImageLoaded(true)}
             priority
           />
-          
+
           {/* Loading overlay */}
           {!isImageLoaded && (
             <div className="absolute inset-0 bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">
@@ -163,8 +214,8 @@ const AmazonZoomImage: React.FC<AmazonZoomImageProps> = ({
                   height: `${lensSize}px`,
                   left: `${lensPos.left}px`,
                   top: `${lensPos.top}px`,
-                  boxShadow: '0 0 0 1000px rgba(0, 0, 0, 0.3)',
-                  backdropFilter: 'blur(1px)',
+                  boxShadow: "0 0 0 1000px rgba(0, 0, 0, 0.3)",
+                  backdropFilter: "blur(1px)",
                 }}
               />
             )}
@@ -177,11 +228,13 @@ const AmazonZoomImage: React.FC<AmazonZoomImageProps> = ({
               animate={{ opacity: 1, y: 0 }}
               className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded"
             >
-              {isMobile ? 'Touch to zoom' : 'Hover to zoom'}
+              {isMobile ? "Touch to zoom" : "Hover to zoom"}
             </motion.div>
           )}
         </div>
-      </div>      {/* Zoom Window - Only show on desktop */}
+      </div>
+
+      {/* Zoom Window - Only show on desktop */}
       <AnimatePresence>
         {isZoomed && isImageLoaded && !isMobile && (
           <motion.div
@@ -189,14 +242,16 @@ const AmazonZoomImage: React.FC<AmazonZoomImageProps> = ({
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.95, x: -20 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="border border-gray-300 rounded-lg bg-white shadow-xl overflow-hidden flex-shrink-0 hidden lg:block"
+            className="border border-gray-300 rounded-lg bg-white shadow-xl overflow-hidden flex-shrink-0 hidden lg:block absolute lg:relative z-50"
             style={{
               width: `${zoomWindowSize}px`,
               height: `${zoomWindowSize}px`,
               backgroundImage: `url(${src})`,
-              backgroundSize: `${width * zoomFactor}px ${height * zoomFactor}px`,
+              backgroundSize: `${zoomedWidth}px ${zoomedHeight}px`,
               backgroundPosition: `-${backgroundX}px -${backgroundY}px`,
-              backgroundRepeat: 'no-repeat',
+              backgroundRepeat: "no-repeat",
+              left: isMobile ? "auto" : "100%",
+              marginLeft: isMobile ? "0" : "1rem",
             }}
           >
             {/* Zoom window label */}

@@ -48,9 +48,74 @@ export function ProductImageGallery({
 
   const fallbackImage = "https://imgur.com/zVWz723.jpg";
   return (
-    <div className="w-full max-w-7xl mx-auto">
-      <div className="flex gap-4 lg:gap-6">
-        {/* Thumbnail Strip */}
+    <div className="w-full h-full">
+      {/* Mobile Layout - Stacked */}
+      <div className="flex flex-col lg:hidden gap-4">
+        {/* Main Image - Mobile */}
+        <div className="w-full">
+          <motion.div
+            key={selectedImage?.url}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="relative w-full"
+          >
+            <AmazonZoomImage
+              src={selectedImage?.url || fallbackImage}
+              width={320}
+              height={320}
+              className="object-contain"
+              alt={productName}
+              zoomFactor={2}
+              containerClassName="w-full"
+              zoomWindowSize={280}
+              lensSize={80}
+              showZoomText={false}
+            />
+
+            {/* Image Counter - Mobile */}
+            {imageList.length > 1 && (
+              <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded-full text-xs z-20">
+                {imageList.findIndex(
+                  (img) => img.image.url === selectedImage?.url
+                ) + 1}{" "}
+                / {imageList.length}
+              </div>
+            )}
+          </motion.div>
+        </div>
+
+        {/* Thumbnail Strip - Mobile (Horizontal) */}
+        <div className="flex gap-2 overflow-x-auto pb-2 px-1">
+          {imageList.map(({ key, image, label }) => (
+            <motion.div
+              key={key}
+              whileTap={{ scale: 0.95 }}
+              className={cn(
+                "relative flex-shrink-0 cursor-pointer rounded-lg overflow-hidden border-2 transition-all duration-200",
+                selectedImage?.url === image.url
+                  ? "border-blue-500 ring-2 ring-blue-500/20"
+                  : "border-gray-200"
+              )}
+            >
+              <div className="w-16 h-16 bg-gradient-to-br from-gray-50 to-gray-100">
+                <Image
+                  src={image.url || fallbackImage}
+                  alt={`${productName} - ${label}`}
+                  width={64}
+                  height={64}
+                  className="w-full h-full object-contain p-1"
+                  onClick={() => onImageSelect(image)}
+                />
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop Layout - Side by Side */}
+      <div className="hidden lg:flex gap-4 h-full">
+        {/* Thumbnail Strip - Desktop */}
         <div className="flex flex-col gap-3 w-20 lg:w-24 flex-shrink-0">
           {imageList.map(({ key, image, label }) => (
             <motion.div
@@ -81,29 +146,29 @@ export function ProductImageGallery({
           ))}
         </div>
 
-        {/* Main Image with Amazon-style Zoom */}
-        <div className="flex-1 min-w-0 sticky top-20 h-fit">
+        {/* Main Image - Desktop */}
+        <div className="flex-1 min-w-0">
           <motion.div
             key={selectedImage?.url}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
-            className="relative"
+            className="relative w-full h-full"
           >
             <AmazonZoomImage
               src={selectedImage?.url || fallbackImage}
-              width={500}
-              height={500}
-              className="object-contain p-4"
+              width={450}
+              height={450}
+              className="object-contain"
               alt={productName}
-              zoomFactor={2.5}
-              containerClassName="w-full justify-start"
+              zoomFactor={3}
+              containerClassName="w-full"
               zoomWindowSize={400}
               lensSize={120}
               showZoomText={true}
             />
 
-            {/* Image Counter */}
+            {/* Image Counter - Desktop */}
             {imageList.length > 1 && (
               <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm z-20">
                 {imageList.findIndex(
@@ -117,9 +182,9 @@ export function ProductImageGallery({
       </div>
 
       {/* Mobile-friendly note */}
-      <div className="mt-4 lg:hidden">
-        <p className="text-sm text-gray-600 text-center">
-          Tap and hold on the image to zoom on mobile devices
+      <div className="mt-3 lg:hidden">
+        <p className="text-xs text-gray-500 text-center">
+          Tap on image to zoom • Swipe thumbnails to see more
         </p>
       </div>
     </div>

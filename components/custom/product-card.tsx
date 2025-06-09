@@ -65,32 +65,36 @@ const ProductCard: React.FC<{
       className={cn(
         "group relative bg-white dark:bg-neutral-900 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700",
         {
-          "h-[480px] flex flex-col": isCompact,
-          "h-[320px] flex": variant === "full",
+          "h-[400px] sm:h-[440px] md:h-[460px] lg:h-[480px] flex flex-col":
+            isCompact,
+          "h-auto sm:h-[320px] flex flex-col sm:flex-row": variant === "full",
         }
       )}
     >
       {/* Image Section */}
       <div
         className={cn(
-          "relative overflow-hidden bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-800 dark:to-neutral-900",
+          "relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-neutral-800 dark:to-neutral-900",
           {
-            "h-[240px] rounded-t-2xl": isCompact,
-            "w-1/2 rounded-l-2xl": variant === "full",
+            "h-[180px] sm:h-[200px] md:h-[220px] lg:h-[240px] rounded-t-2xl":
+              isCompact,
+            "w-full sm:w-1/2 rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl":
+              variant === "full",
           }
         )}
       >
         {/* Product Image */}
-        <div className="absolute inset-0 flex items-center justify-center p-4">
+        <div className="absolute inset-0 flex items-center justify-center p-3 sm:p-4">
           <Image
             src={
               productResult.images.thumbnail.url ??
               "https://imgur.com/N8xhNK3.jpg"
             }
             alt={productResult.productName}
-            width={200}
-            height={200}
-            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+            width={300}
+            height={300}
+            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 max-w-[150px] sm:max-w-[180px] md:max-w-[200px] lg:max-w-none"
+            sizes="(max-width: 640px) 150px, (max-width: 768px) 180px, (max-width: 1024px) 200px, 300px"
           />
         </div>{" "}
         {/* Overlay Effects */}
@@ -130,9 +134,10 @@ const ProductCard: React.FC<{
       </div>
       {/* Content Section */}
       <div
-        className={cn("flex flex-col p-6 flex-1", {
-          "justify-between": isCompact,
-          "w-1/2": variant === "full",
+        className={cn("flex flex-col p-4 sm:p-5 md:p-6 flex-1", {
+          "justify-between border-t-[1px] sm:border-t-[1px]": isCompact,
+          "w-full sm:w-1/2 border-t-[1px] sm:border-t-0 sm:border-l-[1px]":
+            variant === "full",
         })}
       >
         {/* Product Info */}
@@ -142,15 +147,17 @@ const ProductCard: React.FC<{
             onClick={() => router.push(`/store/${productResult.slug}`)}
             className={cn(
               "font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 cursor-pointer line-clamp-2 leading-tight",
-              isCompact ? "text-lg mb-2" : "text-xl mb-3"
+              isCompact
+                ? "text-sm sm:text-base md:text-lg mb-2"
+                : "text-lg sm:text-xl mb-3"
             )}
             title={productResult.productName}
           >
             {productResult.productName}
           </h3>{" "}
           {/* Rating */}
-          <div className="flex items-center gap-2 mb-3">
-            <RatingDisplay rating={productResult.averageRating} starSize={14} />
+          <div className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+            <RatingDisplay rating={productResult.averageRating} starSize={12} />
             <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
               ({productResult.totalReviews})
             </span>
@@ -158,14 +165,13 @@ const ProductCard: React.FC<{
           {/* Description - Show for both variants but with different line clamps */}
           <p
             className={cn(
-              "text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed",
-              isCompact ? "line-clamp-2" : "line-clamp-3"
+              "text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-3 sm:mb-4 leading-relaxed line-clamp-1 "
             )}
           >
             {productResult.productDescription || "No description available."}
           </p>
           {/* Price */}
-          <div className="mb-4">
+          <div className="mb-3 sm:mb-4">
             <PriceTag
               priceValue={productResult.priceValueInCents}
               fontWeight="bold"
@@ -177,13 +183,13 @@ const ProductCard: React.FC<{
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex items-center justify-between gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-800">
           {/* Seller Info */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {user && !isMyProduct && (
               <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-                <User2Icon size={12} />
-                <span className="text-xs font-medium truncate max-w-[100px]">
+                <User2Icon size={10} className="sm:w-3 sm:h-3" />
+                <span className="text-xs font-medium truncate max-w-[80px] sm:max-w-[100px]">
                   {user.firstName} {user.lastName}
                 </span>
               </div>
@@ -201,14 +207,17 @@ const ProductCard: React.FC<{
               }}
               disabled={isInCart}
               className={cn(
-                "transition-all duration-200",
+                "transition-all duration-200 text-xs sm:text-sm px-2 sm:px-3",
                 isInCart
                   ? "bg-green-500 hover:bg-green-600 text-white border-green-500"
                   : "hover:bg-gray-50 dark:hover:bg-gray-800"
               )}
             >
-              <IconBasketPlus className="w-4 h-4 mr-1" />
-              {isInCart ? "Added" : "Add"}
+              <IconBasketPlus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              <span className="hidden sm:inline">
+                {isInCart ? "Added" : "Add"}
+              </span>
+              <span className="sm:hidden">{isInCart ? "✓" : "+"}</span>
             </Button>
           )}
         </div>
@@ -233,8 +242,9 @@ export const ProductCardLoader = ({
       className={cn(
         "bg-white dark:bg-neutral-900 rounded-2xl shadow-sm overflow-hidden border border-neutral-200 dark:border-neutral-800",
         {
-          "h-[480px] flex flex-col": isCompact,
-          "h-[320px] flex": variant === "full",
+          "h-[400px] sm:h-[440px] md:h-[460px] lg:h-[480px] flex flex-col":
+            isCompact,
+          "h-auto sm:h-[320px] flex flex-col sm:flex-row": variant === "full",
         }
       )}
     >
@@ -243,22 +253,27 @@ export const ProductCardLoader = ({
         className={cn(
           "bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-800 dark:to-neutral-900",
           {
-            "h-[240px] rounded-t-2xl": isCompact,
-            "w-1/2 rounded-l-2xl": variant === "full",
+            "h-[180px] sm:h-[200px] md:h-[220px] lg:h-[240px] rounded-t-2xl":
+              isCompact,
+            "w-full sm:w-1/2 rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl":
+              variant === "full",
           }
         )}
       >
-        <div className="flex items-center justify-center h-full p-4">
+        <div className="flex items-center justify-center h-full p-3 sm:p-4">
           <Skeleton className="w-full h-full rounded-lg bg-neutral-200 dark:bg-neutral-700" />
         </div>
       </div>
 
       {/* Content Section Skeleton */}
       <div
-        className={cn("flex flex-col p-6 flex-1 space-y-3", {
-          "justify-between": isCompact,
-          "w-1/2": variant === "full",
-        })}
+        className={cn(
+          "flex flex-col p-4 sm:p-5 md:p-6 flex-1 space-y-2 sm:space-y-3",
+          {
+            "justify-between": isCompact,
+            "w-full sm:w-1/2": variant === "full",
+          }
+        )}
       >
         {/* Product Info Skeleton */}
         <div className="flex-1 space-y-3">

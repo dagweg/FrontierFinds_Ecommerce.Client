@@ -154,7 +154,7 @@ function Navbar() {
             <Link
               href={`/cart`}
               className={cn(
-                "px-4 py-2 rounded-full font-medium transition-all duration-200 hover-scale relative overflow-hidden group flex items-center gap-2",
+                "px-4 py-2 rounded-full font-medium transition-all duration-200 hover-scale relative group flex items-center gap-2",
                 pathname?.includes("cart")
                   ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
                   : "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -164,16 +164,11 @@ function Navbar() {
               <span className="hidden sm:inline">Cart</span>
 
               {/* Enhanced cart badge */}
-              <span
-                className={cn(
-                  !cartStore.isLoading && cartStore.cart.notSeenCount > 0
-                    ? "scale-100 opacity-100"
-                    : "scale-0 opacity-0",
-                  "bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full aspect-square w-5 h-5 flex items-center justify-center text-xs font-bold absolute -top-1 -right-1 transition-all duration-200 animate-pulse"
-                )}
-              >
-                {cartStore.cart.notSeenCount}
-              </span>
+              {!cartStore.isLoading && cartStore.cart.notSeenCount > 0 && (
+                <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full aspect-square w-5 h-5 flex items-center justify-center text-xs font-bold absolute -top-2 -right-2 transition-all duration-200 animate-pulse z-10 shadow-lg">
+                  {cartStore.cart.notSeenCount}
+                </span>
+              )}
               {pathname?.includes("cart") && (
                 <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-500" />
               )}

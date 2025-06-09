@@ -68,26 +68,30 @@ export default function ProductDetailPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white rounded-2xl overflow-hidden mb-8"
+          className="bg-white rounded-2xl mb-8"
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 p-4 sm:p-6 lg:p-8">
             {/* Product Images */}
-            <ProductImageGallery
-              images={product.images}
-              selectedImage={selectedImage}
-              onImageSelect={setSelectedImage}
-              productName={product.productName}
-            />
+            <div className="order-1">
+              <ProductImageGallery
+                images={product.images}
+                selectedImage={selectedImage}
+                onImageSelect={setSelectedImage}
+                productName={product.productName}
+              />
+            </div>
 
             {/* Product Information */}
-            <ProductInfo
-              product={product}
-              seller={seller}
-              isMyProduct={isMyProduct}
-              isLoggedIn={isLoggedIn}
-              onAddToCart={handleAddToCart}
-              router={router}
-            />
+            <div className="order-2">
+              <ProductInfo
+                product={product}
+                seller={seller}
+                isMyProduct={isMyProduct}
+                isLoggedIn={isLoggedIn}
+                onAddToCart={handleAddToCart}
+                router={router}
+              />
+            </div>
           </div>
         </motion.div>{" "}
         {/* Product Details Tabs */}

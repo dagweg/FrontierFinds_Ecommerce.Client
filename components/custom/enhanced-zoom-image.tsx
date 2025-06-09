@@ -22,7 +22,7 @@ const EnhancedZoomImage: React.FC<EnhancedZoomImageProps> = ({
   alt,
   width = 500,
   height = 500,
-  zoomFactor = 2.5,
+  zoomFactor = 5,
   className = "",
   containerClassName = "",
   lensSize = 120,
@@ -47,6 +47,21 @@ const EnhancedZoomImage: React.FC<EnhancedZoomImageProps> = ({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // Prevent body scroll when zooming on mobile
+  React.useEffect(() => {
+    if (isMobile && isZoomed) {
+      // Prevent body scroll
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+
+      return () => {
+        // Restore body scroll
+        document.body.style.overflow = "";
+        document.body.style.touchAction = "";
+      };
+    }
+  }, [isMobile, isZoomed]);
+
   const handleMouseEnter = useCallback(() => {
     if (!isMobile) {
       setIsZoomed(true);
@@ -59,17 +74,27 @@ const EnhancedZoomImage: React.FC<EnhancedZoomImageProps> = ({
     }
   }, [isMobile]);
 
-  const handleTouchStart = useCallback(() => {
-    if (isMobile) {
-      setIsZoomed(true);
-    }
-  }, [isMobile]);
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      if (isMobile) {
+        e.preventDefault(); // Prevent page scroll
+        e.stopPropagation(); // Stop event bubbling
+        setIsZoomed(true);
+      }
+    },
+    [isMobile]
+  );
 
-  const handleTouchEnd = useCallback(() => {
-    if (isMobile) {
-      setTimeout(() => setIsZoomed(false), 2000); // Auto-hide after 2 seconds on mobile
-    }
-  }, [isMobile]);
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      if (isMobile) {
+        e.preventDefault(); // Prevent page scroll
+        e.stopPropagation(); // Stop event bubbling
+        setTimeout(() => setIsZoomed(false), 2000); // Auto-hide after 2 seconds on mobile
+      }
+    },
+    [isMobile]
+  );
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -90,6 +115,9 @@ const EnhancedZoomImage: React.FC<EnhancedZoomImageProps> = ({
   const handleTouchMove = useCallback(
     (e: React.TouchEvent<HTMLDivElement>) => {
       if (!imageRef.current || !isMobile) return;
+
+      e.preventDefault(); // Prevent page scroll
+      e.stopPropagation(); // Stop event bubbling
 
       const rect = imageRef.current.getBoundingClientRect();
       const touch = e.touches[0];
@@ -120,29 +148,44 @@ const EnhancedZoomImage: React.FC<EnhancedZoomImageProps> = ({
 
   // Calculate the background position for the zoomed image
   const getZoomPosition = useCallback(() => {
+    // Calculate zoomed dimensions
+    const zoomedWidth = width * zoomFactor;
+    const zoomedHeight = height * zoomFactor;
+
+    // Calculate what portion of the image the lens is showing
+    // The lens center should correspond to the center of the zoom window
+    const lensCenterX = position.x;
+    const lensCenterY = position.y;
+
+    // Calculate the background position so that the lens center appears in the zoom window center
     const backgroundX =
-      (position.x / width) * (width * zoomFactor - zoomWindowSize);
+      (lensCenterX / width) * zoomedWidth - zoomWindowSize / 2;
     const backgroundY =
-      (position.y / height) * (height * zoomFactor - zoomWindowSize);
+      (lensCenterY / height) * zoomedHeight - zoomWindowSize / 2;
 
     return {
       backgroundX: Math.max(
         0,
-        Math.min(backgroundX, width * zoomFactor - zoomWindowSize)
+        Math.min(backgroundX, zoomedWidth - zoomWindowSize)
       ),
       backgroundY: Math.max(
         0,
-        Math.min(backgroundY, height * zoomFactor - zoomWindowSize)
+        Math.min(backgroundY, zoomedHeight - zoomWindowSize)
       ),
+      zoomedWidth,
+      zoomedHeight,
     };
   }, [position.x, position.y, width, height, zoomFactor, zoomWindowSize]);
 
-  const { backgroundX, backgroundY } = getZoomPosition();
+  const { backgroundX, backgroundY, zoomedWidth, zoomedHeight } =
+    getZoomPosition();
 
   return (
-    <div className={`flex gap-4 lg:gap-6 ${containerClassName}`}>
+    <div
+      className={`flex flex-col lg:flex-row gap-2 lg:gap-4 ${containerClassName}`}
+    >
       {/* Main Image Container */}
-      <div className="relative flex-shrink-0">
+      <div className="relative flex-shrink-0 w-full lg:max-w-full">
         <div
           ref={imageRef}
           onMouseEnter={handleMouseEnter}
@@ -151,21 +194,26 @@ const EnhancedZoomImage: React.FC<EnhancedZoomImageProps> = ({
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           onTouchMove={handleTouchMove}
-          className={`relative overflow-hidden cursor-crosshair border border-gray-200 rounded-lg shadow-sm transition-all duration-200 ${
+          className={`relative overflow-hidden cursor-crosshair border border-gray-200 rounded-lg shadow-sm transition-all duration-200 bg-white mx-auto touch-none ${
             isZoomed
               ? "shadow-lg border-blue-300"
               : "hover:shadow-md hover:border-gray-300"
           }`}
-          style={{ width: `${width}px`, height: `${height}px` }}
+          style={{
+            width: `${width}px`,
+            height: `${height}px`,
+            maxWidth: "100%",
+          }}
         >
           <Image
             src={src}
             alt={alt}
             width={width}
             height={height}
-            className={`object-contain transition-opacity duration-200 ${className}`}
+            className={`w-full h-full object-contain transition-opacity duration-200 p-2 sm:p-3 lg:p-4 ${className}`}
             onLoad={() => setIsImageLoaded(true)}
             priority
+            sizes="(max-width: 640px) 320px, (max-width: 1024px) 450px, 500px"
           />
 
           {/* Loading overlay */}
@@ -209,35 +257,56 @@ const EnhancedZoomImage: React.FC<EnhancedZoomImageProps> = ({
         </div>
       </div>
 
-      {/* Zoom Window - Only show on desktop */}
+      {/* Zoom Window - Desktop and Mobile */}
       <AnimatePresence>
-        {isZoomed && isImageLoaded && !isMobile && (
+        {isZoomed && isImageLoaded && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, x: -20 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            exit={{ opacity: 0, scale: 0.95, x: -20 }}
+            initial={{
+              opacity: 0,
+              scale: 0.95,
+              y: isMobile ? -10 : 0,
+              x: isMobile ? 0 : -20,
+            }}
+            animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
+            exit={{
+              opacity: 0,
+              scale: 0.95,
+              y: isMobile ? -10 : 0,
+              x: isMobile ? 0 : -20,
+            }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="border border-gray-300 rounded-lg bg-white shadow-xl overflow-hidden flex-shrink-0 hidden lg:block"
+            className={`border-2 border-blue-500 rounded-lg bg-white shadow-xl overflow-hidden flex-shrink-0 z-50 ${
+              isMobile ? "mt-4 mx-auto" : "ml-4 hidden lg:block"
+            }`}
             style={{
-              width: `${zoomWindowSize}px`,
-              height: `${zoomWindowSize}px`,
-              backgroundImage: `url(${src})`,
-              backgroundSize: `${width * zoomFactor}px ${
-                height * zoomFactor
+              width: `${
+                isMobile ? Math.min(zoomWindowSize, 280) : zoomWindowSize
               }px`,
+              height: `${
+                isMobile ? Math.min(zoomWindowSize, 280) : zoomWindowSize
+              }px`,
+              backgroundImage: `url(${src})`,
+              backgroundSize: `${zoomedWidth}px ${zoomedHeight}px`,
               backgroundPosition: `-${backgroundX}px -${backgroundY}px`,
               backgroundRepeat: "no-repeat",
             }}
           >
             {/* Zoom window label */}
-            <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
-              Zoomed View
+            <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded font-bold">
+              Zoomed View ({zoomFactor}x)
             </div>
             {/* Optional: Add a subtle inner shadow for depth */}
             <div className="absolute inset-0 shadow-inner pointer-events-none" />
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Mobile zoom instructions */}
+      {isMobile && (
+        <div className="mt-2 text-center">
+          <p className="text-xs text-gray-500">Tap and hold to zoom</p>
+        </div>
+      )}
     </div>
   );
 };
