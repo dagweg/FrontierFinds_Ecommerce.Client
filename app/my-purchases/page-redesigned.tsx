@@ -22,82 +22,51 @@ import {
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 import { useEnvStore } from "@/lib/zustand/useEnvStore";
-import {
-  ShoppingBag,
-  Search,
-  Filter,
-  Calendar,
-  Package,
-  Eye,
+import { 
+  ShoppingBag, 
+  Search, 
+  Filter, 
+  Calendar, 
+  Package, 
+  Eye, 
   Download,
   Clock,
   CheckCircle,
   XCircle,
   Truck,
-  ArrowUpDown,
-  MapPin,
-  RefreshCw,
-  TrendingUp,
-  DollarSign,
+  CreditCard,
+  ArrowUpDown
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import PriceTag from "@/components/custom/price-tag";
 
-// Enhanced Order interface to match API response with additional features
-interface Order {
+interface OrderItem {
   orderId: string;
-  userId: string;
+  orderDate: string;
   total: {
     valueTotalInCents: number;
-    currency: string;
-  };
-  shippingAddress: {
-    street: string;
-    city: string;
-    state: string;
-    country: string;
-    zipCode: string;
   };
   status: string;
-  orderDate: string;
   items?: Array<{
-    productId: string;
     productName: string;
     quantity: number;
-    priceInCents: number;
-    imageUrl?: string;
+    price: number;
   }>;
 }
 
 interface OrdersResponse {
-  totalItems: number;
-  totalItemsFetched: number;
-  items: Order[];
+  items: OrderItem[];
+  totalCount: number;
 }
 
-interface OrderStats {
-  totalOrders: number;
-  totalSpent: number;
-  averageOrderValue: number;
-  completedOrders: number;
-}
-
-function MyPurchases() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+function MyPurchasesRedesigned() {
+  const [orders, setOrders] = useState<OrderItem[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<OrderItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("date-desc");
-  const [stats, setStats] = useState<OrderStats>({
-    totalOrders: 0,
-    totalSpent: 0,
-    averageOrderValue: 0,
-    completedOrders: 0,
-  });
-
   const router = useRouter();
   const apiBase = useEnvStore().apiBaseUrl;
 
@@ -117,28 +86,6 @@ function MyPurchases() {
         const data: OrdersResponse = await response.json();
         setOrders(data.items);
         setFilteredOrders(data.items);
-
-        // Calculate stats with error handling
-        const totalSpent = data.items.reduce((sum, order) => {
-          const orderTotal = order?.total?.valueTotalInCents || 0;
-          return sum + orderTotal;
-        }, 0);
-        const completedOrders = data.items.filter(
-          (order) =>
-            order?.status &&
-            (order.status.toLowerCase() === "delivered" ||
-              order.status.toLowerCase() === "completed")
-        ).length;
-
-        setStats({
-          totalOrders: data.items.length,
-          totalSpent: totalSpent / 100,
-          averageOrderValue:
-            data.items.length > 0
-              ? Math.round((totalSpent / 100 / data.items.length) * 100) / 100
-              : 0,
-          completedOrders,
-        });
       } catch (e: any) {
         setError("Failed to load purchases. Please try again later.");
         console.error("Error fetching orders:", e);
@@ -153,37 +100,22 @@ function MyPurchases() {
   // Filter and sort orders
   useEffect(() => {
     let filtered = orders.filter((order) => {
-      if (!order) return false;
-
-      const matchesSearch = order.orderId
-        ? order.orderId.toLowerCase().includes(searchTerm.toLowerCase())
-        : false;
-      const matchesStatus =
-        statusFilter === "all" ||
-        (order.status &&
-          order.status.toLowerCase() === statusFilter.toLowerCase());
+      const matchesSearch = order.orderId.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === "all" || order.status.toLowerCase() === statusFilter.toLowerCase();
       return matchesSearch && matchesStatus;
     });
 
-    // Sort orders with error handling
+    // Sort orders
     filtered.sort((a, b) => {
       switch (sortBy) {
         case "date-desc":
-          const dateB = a?.orderDate ? new Date(b.orderDate).getTime() : 0;
-          const dateA = a?.orderDate ? new Date(a.orderDate).getTime() : 0;
-          return dateB - dateA;
+          return new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime();
         case "date-asc":
-          const dateA2 = a?.orderDate ? new Date(a.orderDate).getTime() : 0;
-          const dateB2 = b?.orderDate ? new Date(b.orderDate).getTime() : 0;
-          return dateA2 - dateB2;
+          return new Date(a.orderDate).getTime() - new Date(b.orderDate).getTime();
         case "amount-desc":
-          const amountB = b?.total?.valueTotalInCents || 0;
-          const amountA = a?.total?.valueTotalInCents || 0;
-          return amountB - amountA;
+          return b.total.valueTotalInCents - a.total.valueTotalInCents;
         case "amount-asc":
-          const amountA2 = a?.total?.valueTotalInCents || 0;
-          const amountB2 = b?.total?.valueTotalInCents || 0;
-          return amountA2 - amountB2;
+          return a.total.valueTotalInCents - b.total.valueTotalInCents;
         default:
           return 0;
       }
@@ -231,21 +163,7 @@ function MyPurchases() {
   };
 
   const handleViewOrderDetails = (orderId: string) => {
-    // TODO: Update this route when order details page is created
-    // For now, we'll show an alert or navigate to a placeholder
-    alert(`Order details for ${orderId} - Details page not yet implemented`);
-    // router.push(`/my-purchases/${orderId}`);
-  };
-
-  const handleRefresh = () => {
-    window.location.reload();
-  };
-
-  const handleDownloadReceipt = (orderId: string) => {
-    // TODO: Implement receipt download functionality
-    alert(
-      `Download receipt for order ${orderId} - Feature not yet implemented`
-    );
+    router.push(`/purchases/${orderId}`);
   };
 
   if (isLoading) {
@@ -275,100 +193,15 @@ function MyPurchases() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <Title
-            text="My Purchases"
-            className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2"
-          />
-          <p className="text-gray-600 dark:text-gray-300">
-            Track and manage your order history
-          </p>
-        </motion.div>
-
-        {/* Stats Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
-        >
-          <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                    Total Orders
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.totalOrders}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
-                  <ShoppingBag className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                    Total Spent
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    ${stats.totalSpent.toFixed(2)}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-green-600 dark:text-green-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                    Average Order
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    ${stats.averageOrderValue.toFixed(2)}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                    Completed
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.completedOrders}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <Title text="My Purchases" className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2" />
+          <p className="text-gray-600 dark:text-gray-300">Track and manage your order history</p>
         </motion.div>
 
         {/* Filters and Search */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.1 }}
           className="mb-6"
         >
           <Card className="border-0 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
@@ -414,16 +247,6 @@ function MyPurchases() {
                     <SelectItem value="amount-asc">Lowest Amount</SelectItem>
                   </SelectContent>
                 </Select>
-
-                {/* Refresh Button */}
-                <Button
-                  variant="outline"
-                  onClick={handleRefresh}
-                  className="w-full sm:w-auto"
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Refresh
-                </Button>
               </div>
             </CardContent>
           </Card>
@@ -433,18 +256,16 @@ function MyPurchases() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.2 }}
           className="space-y-4"
         >
           {error ? (
             <Card className="border-0 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
               <CardContent className="p-8 text-center">
                 <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                <p className="text-red-600 dark:text-red-400 text-lg">
-                  {error}
-                </p>
-                <Button
-                  onClick={handleRefresh}
+                <p className="text-red-600 dark:text-red-400 text-lg">{error}</p>
+                <Button 
+                  onClick={() => window.location.reload()} 
                   className="mt-4"
                   variant="outline"
                 >
@@ -457,14 +278,13 @@ function MyPurchases() {
               <CardContent className="p-8 text-center">
                 <ShoppingBag className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                  {searchTerm || statusFilter !== "all"
-                    ? "No matching orders found"
-                    : "No purchases yet"}
+                  {searchTerm || statusFilter !== "all" ? "No matching orders found" : "No purchases yet"}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  {searchTerm || statusFilter !== "all"
-                    ? "Try adjusting your search or filter criteria"
-                    : "Start shopping to see your orders here"}
+                  {searchTerm || statusFilter !== "all" 
+                    ? "Try adjusting your search or filter criteria" 
+                    : "Start shopping to see your orders here"
+                  }
                 </p>
                 <Button onClick={() => router.push("/store")}>
                   <ShoppingBag className="w-4 h-4 mr-2" />
@@ -495,68 +315,31 @@ function MyPurchases() {
                             </div>
                             <div>
                               <h3 className="font-semibold text-gray-900 dark:text-white">
-                                Order #{order.orderId || "Unknown"}
+                                Order #{order.orderId}
                               </h3>
                               <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                                 <Calendar className="w-4 h-4" />
-                                <span>
-                                  {order.orderDate
-                                    ? new Date(
-                                        order.orderDate
-                                      ).toLocaleDateString()
-                                    : "Date not available"}
-                                </span>
+                                <span>{new Date(order.orderDate).toLocaleDateString()}</span>
                                 <span>•</span>
-                                <span>
-                                  {order.orderDate
-                                    ? new Date(
-                                        order.orderDate
-                                      ).toLocaleTimeString([], {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                      })
-                                    : "Time not available"}
-                                </span>
+                                <span>{new Date(order.orderDate).toLocaleTimeString()}</span>
                               </div>
                             </div>
                           </div>
-
-                          {/* Shipping Address */}
-                          {order.shippingAddress &&
-                            order.shippingAddress.city &&
-                            order.shippingAddress.state && (
-                              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-2">
-                                <MapPin className="w-4 h-4" />
-                                <span>
-                                  {order.shippingAddress.city},{" "}
-                                  {order.shippingAddress.state}
-                                </span>
-                              </div>
-                            )}
                         </div>
 
                         {/* Status and Amount */}
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                          <Badge
-                            className={cn(
-                              "flex items-center gap-1",
-                              getStatusColor(order.status)
-                            )}
-                          >
+                          <Badge className={cn("flex items-center gap-1", getStatusColor(order.status))}>
                             {getStatusIcon(order.status)}
                             {order.status.toUpperCase()}
                           </Badge>
-
+                          
                           <div className="text-right">
-                            <PriceTag
-                              priceValue={order.total.valueTotalInCents}
-                              size="medium"
-                              fontWeight="bold"
-                              className="text-lg"
-                            />
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              Total Amount
-                            </p>
+                            <div className="flex items-center gap-1 text-lg font-bold text-gray-900 dark:text-white">
+                              <CreditCard className="w-4 h-4" />
+                              ${(order.total.valueTotalInCents / 100).toFixed(2)}
+                            </div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Total Amount</p>
                           </div>
                         </div>
 
@@ -565,9 +348,7 @@ function MyPurchases() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() =>
-                              handleViewOrderDetails(order.orderId)
-                            }
+                            onClick={() => handleViewOrderDetails(order.orderId)}
                             className="group-hover:bg-blue-50 group-hover:border-blue-200 dark:group-hover:bg-blue-900/20"
                           >
                             <Eye className="w-4 h-4 mr-2" />
@@ -576,9 +357,7 @@ function MyPurchases() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDownloadReceipt(order.orderId)}
                             className="group-hover:bg-gray-50 dark:group-hover:bg-gray-700"
-                            title="Download Receipt"
                           >
                             <Download className="w-4 h-4" />
                           </Button>
@@ -591,9 +370,50 @@ function MyPurchases() {
             </AnimatePresence>
           )}
         </motion.div>
+
+        {/* Summary Stats */}
+        {filteredOrders.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-8"
+          >
+            <Card className="border-0 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ShoppingBag className="w-5 h-5" />
+                  Purchase Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                      {filteredOrders.length}
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Total Orders</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      ${(filteredOrders.reduce((sum, order) => sum + order.total.valueTotalInCents, 0) / 100).toFixed(2)}
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Total Spent</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                      ${filteredOrders.length > 0 ? (filteredOrders.reduce((sum, order) => sum + order.total.valueTotalInCents, 0) / 100 / filteredOrders.length).toFixed(2) : '0.00'}
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Average Order</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
       </div>
     </div>
   );
 }
 
-export default MyPurchases;
+export default MyPurchasesRedesigned;

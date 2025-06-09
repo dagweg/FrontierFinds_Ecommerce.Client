@@ -14,11 +14,33 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { useEnvStore } from "@/lib/zustand/useEnvStore";
 import { useSession } from "@/components/providers/session-provider";
 import { ProductResult } from "@/types/product.types";
 import { UserResult, AddressResult } from "@/types/user.types";
-import { Edit, Edit2, Edit3, EditIcon } from "lucide-react";
+import {
+  Edit,
+  Save,
+  X,
+  User,
+  MapPin,
+  Phone,
+  Mail,
+  Package,
+  ShoppingBag,
+  Calendar,
+  Camera,
+  Settings,
+  Star,
+  TrendingUp,
+  DollarSign,
+  EditIcon,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+import PriceTag from "@/components/custom/price-tag";
 
 interface Purchase {
   // Example purchase interface
@@ -184,352 +206,466 @@ function YourProfile() {
   }
 
   return (
-    <div className="h-fit min-h-screen max-w-[1800px] w-full mx-auto p-10">
-      <Title text="Your Profile" className="text-2xl mb-8" />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <Title
+            text="Your Profile"
+            className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2"
+          />
+          <p className="text-gray-600 dark:text-gray-300">
+            Manage your account settings and preferences
+          </p>
+        </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Left Column: Profile Summary */}
-        <Card className="md:col-span-1 border-none shadow-none">
-          <CardHeader>
-            <CardTitle>Profile Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center">
-            {/* Profile Picture */}
-            <div className="relative w-32 h-32 rounded-full overflow-hidden mb-4">
-              {editableUser.profileImage?.url ? (
-                <Image
-                  src={
-                    editableUser.profileImage.url ??
-                    "https://imgur.com/zVWz723.jpg"
-                  }
-                  alt="Profile Picture"
-                  layout="fill"
-                  objectFit="cover"
-                />
-              ) : (
-                <div>No Image</div>
-              )}
-            </div>
-            <h2 className="text-xl font-semibold text-gray-800">
-              {editableUser.firstName} {editableUser.lastName}
-            </h2>
-            <p className="text-gray-600">{editableUser.phoneNumber}</p>
-            <p className="text-gray-500 mt-2">Joined: January 1, 2023</p>
-          </CardContent>
-        </Card>
-
-        {/* Middle Column: Profile Details */}
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle>Account Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
-                <Label htmlFor="firstName" className="text-right md:text-left">
-                  First Name:
-                </Label>
-                <div className="w-full flex items-center gap-3">
-                  <Input
-                    type="text"
-                    id="firstName"
-                    value={editableUser.firstName}
-                    readOnly={!editMode.firstName}
-                    className="md:col-span-2"
-                    onChange={(e) =>
-                      handleInputChange("firstName", e.target.value)
-                    }
-                  />
-                  <EditIcon
-                    size={30}
-                    cursor={"pointer"}
-                    className="hover:bg-neutral-100 opacity-50 hover:opacity-100 duration-100 rounded-full w-[35px] h-[35px]  p-1"
-                    onClick={() => toggleEditMode("firstName")}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
-                <Label htmlFor="lastName" className="text-right md:text-left">
-                  Last Name:
-                </Label>
-                <div className="w-full flex items-center gap-3">
-                  <Input
-                    type="text"
-                    id="lastName"
-                    value={editableUser.lastName}
-                    readOnly={!editMode.lastName}
-                    className="md:col-span-2"
-                    onChange={(e) =>
-                      handleInputChange("lastName", e.target.value)
-                    }
-                  />
-                  <EditIcon
-                    size={30}
-                    cursor={"pointer"}
-                    className="hover:bg-neutral-100 opacity-50 hover:opacity-100 duration-100 rounded-full w-[35px] h-[35px]  p-1"
-                    onClick={() => toggleEditMode("lastName")}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
-                <Label htmlFor="email" className="text-right md:text-left">
-                  Email:
-                </Label>
-                <div className="w-full flex items-center gap-3">
-                  <Input
-                    type="email"
-                    id="email"
-                    value={editableUser.email}
-                    readOnly
-                    className="md:col-span-2"
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
-                <Label
-                  htmlFor="phoneNumber"
-                  className="text-right md:text-left"
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* Left Column: Profile Summary */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="lg:col-span-1"
+          >
+            <Card className="overflow-hidden border-0 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <div className="relative h-32 bg-gradient-to-r from-blue-500 to-purple-600">
+                <div className="absolute inset-0 bg-black/20" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute top-4 right-4 text-white hover:bg-white/20"
                 >
-                  Phone Number:
-                </Label>
-                <div className="w-full flex items-center gap-3">
-                  <Input
-                    type="text"
-                    id="phoneNumber"
-                    value={editableUser.phoneNumber}
-                    readOnly={!editMode.phoneNumber}
-                    className="md:col-span-2"
-                    onChange={(e) =>
-                      handleInputChange("phoneNumber", e.target.value)
-                    }
-                  />
-                  <EditIcon
-                    size={30}
-                    cursor={"pointer"}
-                    className="hover:bg-neutral-100 opacity-50 hover:opacity-100 duration-100 rounded-full w-[35px] h-[35px]  p-1"
-                    onClick={() => toggleEditMode("phoneNumber")}
-                  />
-                </div>
+                  <Camera className="w-4 h-4" />
+                </Button>
               </div>
 
-              {editableUser.address && (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
-                    <Label
-                      htmlFor="streetAddress"
-                      className="text-right md:text-left"
-                    >
-                      Street Address:
-                    </Label>
-                    <div className="w-full flex items-center gap-3">
-                      <Input
-                        type="text"
-                        id="streetAddress"
-                        value={editableUser.address.street}
-                        readOnly={!editMode.street}
-                        className="md:col-span-2"
-                        onChange={(e) =>
-                          handleInputChange(
-                            "address",
-                            e.target.value,
-                            true,
-                            "street"
-                          )
-                        }
-                      />
-                      <EditIcon
-                        size={30}
-                        cursor={"pointer"}
-                        className="hover:bg-neutral-100 opacity-50 hover:opacity-100 duration-100 rounded-full w-[35px] h-[35px]  p-1"
-                        onClick={() => toggleEditMode("street")}
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
-                    <Label htmlFor="city" className="text-right md:text-left">
-                      City:
-                    </Label>
-                    <div className="w-full flex items-center gap-3">
-                      <Input
-                        type="text"
-                        id="city"
-                        value={editableUser.address.city}
-                        readOnly={!editMode.city}
-                        className="md:col-span-2"
-                        onChange={(e) =>
-                          handleInputChange(
-                            "address",
-                            e.target.value,
-                            true,
-                            "city"
-                          )
-                        }
-                      />
-                      <EditIcon
-                        size={30}
-                        cursor={"pointer"}
-                        className="hover:bg-neutral-100 opacity-50 hover:opacity-100 duration-100 rounded-full w-[35px] h-[35px]  p-1"
-                        onClick={() => toggleEditMode("city")}
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
-                    <Label htmlFor="state" className="text-right md:text-left">
-                      State:
-                    </Label>
-                    <div className="w-full flex items-center gap-3">
-                      <Input
-                        type="text"
-                        id="state"
-                        value={editableUser.address.state}
-                        readOnly={!editMode.state}
-                        className="md:col-span-2"
-                        onChange={(e) =>
-                          handleInputChange(
-                            "address",
-                            e.target.value,
-                            true,
-                            "state"
-                          )
-                        }
-                      />
-                      <EditIcon
-                        size={30}
-                        cursor={"pointer"}
-                        className="hover:bg-neutral-100 opacity-50 hover:opacity-100 duration-100 rounded-full w-[35px] h-[35px]  p-1"
-                        onClick={() => toggleEditMode("state")}
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
-                    <Label
-                      htmlFor="zipCode"
-                      className="text-right md:text-left"
-                    >
-                      Zip Code:
-                    </Label>
-                    <div className="w-full flex items-center gap-3">
-                      <Input
-                        type="text"
-                        id="zipCode"
-                        value={editableUser.address.zipCode}
-                        readOnly={!editMode.zipCode}
-                        className="md:col-span-2"
-                        onChange={(e) =>
-                          handleInputChange(
-                            "address",
-                            e.target.value,
-                            true,
-                            "zipCode"
-                          )
-                        }
-                      />
-                      <EditIcon
-                        size={30}
-                        cursor={"pointer"}
-                        className="hover:bg-neutral-100 opacity-50 hover:opacity-100 duration-100 rounded-full w-[35px] h-[35px]  p-1"
-                        onClick={() => toggleEditMode("zipCode")}
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
-                    <Label
-                      htmlFor="country"
-                      className="text-right md:text-left"
-                    >
-                      Country:
-                    </Label>
-                    <div className="w-full flex items-center gap-3">
-                      <Input
-                        type="text"
-                        id="country"
-                        value={editableUser.address.country}
-                        readOnly={!editMode.country}
-                        className="md:col-span-2"
-                        onChange={(e) =>
-                          handleInputChange(
-                            "address",
-                            e.target.value,
-                            true,
-                            "country"
-                          )
-                        }
-                      />
-                      <EditIcon
-                        size={30}
-                        cursor={"pointer"}
-                        className="hover:bg-neutral-100 opacity-50 hover:opacity-100 duration-100 rounded-full w-[35px] h-[35px]  p-1"
-                        onClick={() => toggleEditMode("country")}
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-            {changesMade && (
-              <div className="flex justify-end mt-4">
-                <Button onClick={handleSaveChanges}>Save Changes</Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-4">
-        {/* Recent Products */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Products</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {recentProducts.length > 0 ? (
-              <ul className="list-none">
-                {recentProducts.map((product) => (
-                  <li key={product.productId} className="mb-2">
-                    {product.productName} - ${product.priceValueInCents / 100}
-                    {/* Add image if available */}
-                    {product.images.thumbnail && (
+              <CardContent className="relative pt-0 pb-6">
+                {/* Profile Picture */}
+                <div className="relative -mt-16 mb-4 flex justify-center">
+                  <div className="relative w-32 h-32 rounded-full border-4 border-white dark:border-gray-800 shadow-xl overflow-hidden bg-white dark:bg-gray-700">
+                    {editableUser?.profileImage?.url ? (
                       <Image
-                        src={
-                          product.images.thumbnail.url ||
-                          "https://imgur.com/zVWz723.jpg"
-                        }
-                        alt={"Thumb"}
-                        width={50}
-                        height={50}
+                        src={editableUser.profileImage.url}
+                        alt="Profile Picture"
+                        fill
+                        className="object-cover"
                       />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+                        <span className="text-white text-3xl font-bold">
+                          {editableUser?.firstName?.charAt(0)}
+                          {editableUser?.lastName?.charAt(0)}
+                        </span>
+                      </div>
                     )}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div>No recent products.</div>
-            )}
-          </CardContent>
-        </Card>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="absolute bottom-0 right-0 rounded-full w-8 h-8 p-0 shadow-lg"
+                    >
+                      <Camera className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
 
-        {/* Recent Purchases */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Purchases</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {recentPurchases.length > 0 ? (
-              <ul className="list-none">
-                {recentPurchases.map((purchase) => (
-                  <li key={purchase.id} className="mb-2">
-                    {purchase.productName} - ${purchase.amount} -{" "}
-                    {purchase.date}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div>No recent purchases.</div>
-            )}
-          </CardContent>
-        </Card>
+                {/* Profile Info */}
+                <div className="text-center">
+                  <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+                    {editableUser.firstName} {editableUser.lastName}
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    {editableUser.phoneNumber}
+                  </p>
+                  <p className="text-gray-500 dark:text-gray-400 mt-2">
+                    Joined: January 1, 2023
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Right Column: Profile Details */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="lg:col-span-2"
+          >
+            <Card className="border-0 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle>Account Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                    <Label
+                      htmlFor="firstName"
+                      className="text-right md:text-left"
+                    >
+                      First Name:
+                    </Label>
+                    <div className="w-full flex items-center gap-3">
+                      <Input
+                        type="text"
+                        id="firstName"
+                        value={editableUser.firstName}
+                        readOnly={!editMode.firstName}
+                        className="md:col-span-2"
+                        onChange={(e) =>
+                          handleInputChange("firstName", e.target.value)
+                        }
+                      />
+                      <EditIcon
+                        size={30}
+                        cursor={"pointer"}
+                        className="hover:bg-neutral-100 opacity-50 hover:opacity-100 duration-100 rounded-full w-[35px] h-[35px]  p-1"
+                        onClick={() => toggleEditMode("firstName")}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                    <Label
+                      htmlFor="lastName"
+                      className="text-right md:text-left"
+                    >
+                      Last Name:
+                    </Label>
+                    <div className="w-full flex items-center gap-3">
+                      <Input
+                        type="text"
+                        id="lastName"
+                        value={editableUser.lastName}
+                        readOnly={!editMode.lastName}
+                        className="md:col-span-2"
+                        onChange={(e) =>
+                          handleInputChange("lastName", e.target.value)
+                        }
+                      />
+                      <EditIcon
+                        size={30}
+                        cursor={"pointer"}
+                        className="hover:bg-neutral-100 opacity-50 hover:opacity-100 duration-100 rounded-full w-[35px] h-[35px]  p-1"
+                        onClick={() => toggleEditMode("lastName")}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                    <Label htmlFor="email" className="text-right md:text-left">
+                      Email:
+                    </Label>
+                    <div className="w-full flex items-center gap-3">
+                      <Input
+                        type="email"
+                        id="email"
+                        value={editableUser.email}
+                        readOnly
+                        className="md:col-span-2"
+                        onChange={(e) =>
+                          handleInputChange("email", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                    <Label
+                      htmlFor="phoneNumber"
+                      className="text-right md:text-left"
+                    >
+                      Phone Number:
+                    </Label>
+                    <div className="w-full flex items-center gap-3">
+                      <Input
+                        type="text"
+                        id="phoneNumber"
+                        value={editableUser.phoneNumber}
+                        readOnly={!editMode.phoneNumber}
+                        className="md:col-span-2"
+                        onChange={(e) =>
+                          handleInputChange("phoneNumber", e.target.value)
+                        }
+                      />
+                      <EditIcon
+                        size={30}
+                        cursor={"pointer"}
+                        className="hover:bg-neutral-100 opacity-50 hover:opacity-100 duration-100 rounded-full w-[35px] h-[35px]  p-1"
+                        onClick={() => toggleEditMode("phoneNumber")}
+                      />
+                    </div>
+                  </div>
+
+                  {editableUser.address && (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                        <Label
+                          htmlFor="streetAddress"
+                          className="text-right md:text-left"
+                        >
+                          Street Address:
+                        </Label>
+                        <div className="w-full flex items-center gap-3">
+                          <Input
+                            type="text"
+                            id="streetAddress"
+                            value={editableUser.address.street}
+                            readOnly={!editMode.street}
+                            className="md:col-span-2"
+                            onChange={(e) =>
+                              handleInputChange(
+                                "address",
+                                e.target.value,
+                                true,
+                                "street"
+                              )
+                            }
+                          />
+                          <EditIcon
+                            size={30}
+                            cursor={"pointer"}
+                            className="hover:bg-neutral-100 opacity-50 hover:opacity-100 duration-100 rounded-full w-[35px] h-[35px]  p-1"
+                            onClick={() => toggleEditMode("street")}
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                        <Label
+                          htmlFor="city"
+                          className="text-right md:text-left"
+                        >
+                          City:
+                        </Label>
+                        <div className="w-full flex items-center gap-3">
+                          <Input
+                            type="text"
+                            id="city"
+                            value={editableUser.address.city}
+                            readOnly={!editMode.city}
+                            className="md:col-span-2"
+                            onChange={(e) =>
+                              handleInputChange(
+                                "address",
+                                e.target.value,
+                                true,
+                                "city"
+                              )
+                            }
+                          />
+                          <EditIcon
+                            size={30}
+                            cursor={"pointer"}
+                            className="hover:bg-neutral-100 opacity-50 hover:opacity-100 duration-100 rounded-full w-[35px] h-[35px]  p-1"
+                            onClick={() => toggleEditMode("city")}
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                        <Label
+                          htmlFor="state"
+                          className="text-right md:text-left"
+                        >
+                          State:
+                        </Label>
+                        <div className="w-full flex items-center gap-3">
+                          <Input
+                            type="text"
+                            id="state"
+                            value={editableUser.address.state}
+                            readOnly={!editMode.state}
+                            className="md:col-span-2"
+                            onChange={(e) =>
+                              handleInputChange(
+                                "address",
+                                e.target.value,
+                                true,
+                                "state"
+                              )
+                            }
+                          />
+                          <EditIcon
+                            size={30}
+                            cursor={"pointer"}
+                            className="hover:bg-neutral-100 opacity-50 hover:opacity-100 duration-100 rounded-full w-[35px] h-[35px]  p-1"
+                            onClick={() => toggleEditMode("state")}
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                        <Label
+                          htmlFor="zipCode"
+                          className="text-right md:text-left"
+                        >
+                          Zip Code:
+                        </Label>
+                        <div className="w-full flex items-center gap-3">
+                          <Input
+                            type="text"
+                            id="zipCode"
+                            value={editableUser.address.zipCode}
+                            readOnly={!editMode.zipCode}
+                            className="md:col-span-2"
+                            onChange={(e) =>
+                              handleInputChange(
+                                "address",
+                                e.target.value,
+                                true,
+                                "zipCode"
+                              )
+                            }
+                          />
+                          <EditIcon
+                            size={30}
+                            cursor={"pointer"}
+                            className="hover:bg-neutral-100 opacity-50 hover:opacity-100 duration-100 rounded-full w-[35px] h-[35px]  p-1"
+                            onClick={() => toggleEditMode("zipCode")}
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                        <Label
+                          htmlFor="country"
+                          className="text-right md:text-left"
+                        >
+                          Country:
+                        </Label>
+                        <div className="w-full flex items-center gap-3">
+                          <Input
+                            type="text"
+                            id="country"
+                            value={editableUser.address.country}
+                            readOnly={!editMode.country}
+                            className="md:col-span-2"
+                            onChange={(e) =>
+                              handleInputChange(
+                                "address",
+                                e.target.value,
+                                true,
+                                "country"
+                              )
+                            }
+                          />
+                          <EditIcon
+                            size={30}
+                            cursor={"pointer"}
+                            className="hover:bg-neutral-100 opacity-50 hover:opacity-100 duration-100 rounded-full w-[35px] h-[35px]  p-1"
+                            onClick={() => toggleEditMode("country")}
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+                {changesMade && (
+                  <div className="flex justify-end mt-4">
+                    <Button onClick={handleSaveChanges}>Save Changes</Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Bottom Section: Recent Activity */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-8"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Recent Products */}
+            <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="w-5 h-5" />
+                  Recent Products
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {recentProducts.length > 0 ? (
+                  <ul className="space-y-4">
+                    {recentProducts.map((product) => (
+                      <li
+                        key={product.productId}
+                        className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                      >
+                        {product.images.thumbnail && (
+                          <div className="flex-shrink-0">
+                            <Image
+                              src={
+                                product.images.thumbnail.url ||
+                                "https://imgur.com/zVWz723.jpg"
+                              }
+                              alt={product.productName}
+                              width={60}
+                              height={60}
+                              className="rounded-lg object-cover"
+                            />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <h4 className="font-medium text-gray-900 dark:text-white">
+                            {product.productName}
+                          </h4>
+                          <PriceTag
+                            priceValue={product.priceValueInCents}
+                            size="small"
+                            className="text-sm"
+                          />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    No recent products.
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Recent Purchases */}
+            <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ShoppingBag className="w-5 h-5" />
+                  Recent Purchases
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {recentPurchases.length > 0 ? (
+                  <ul className="space-y-3">
+                    {recentPurchases.map((purchase) => (
+                      <li
+                        key={purchase.id}
+                        className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                      >
+                        <span className="font-medium">
+                          {purchase.productName}
+                        </span>
+                        <div className="text-right">
+                          <div className="font-semibold">
+                            ${purchase.amount}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {purchase.date}
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    No recent purchases.
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
