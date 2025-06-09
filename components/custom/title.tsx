@@ -20,7 +20,7 @@ const Title: React.FC<TitleProps> = ({
 
   return (
     <Tag
-      className={`w-fit font-platypi ${className}`}
+      className={`w-fit font-poppins ${className}`}
       style={{ ...baseStyle, ...style }}
     >
       {text}

@@ -9,7 +9,6 @@ export interface InputProps
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, ...props }, ref) => {
-    const radius = 100; // change this to increase the rdaius of the hover effect
     const [visible, setVisible] = React.useState(false);
 
     let mouseX = useMotionValue(0);
@@ -23,15 +22,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     }
     return (
       <motion.div
-        style={{
-          background: useMotionTemplate`
-        radial-gradient(
-          ${visible ? radius + "px" : "0px"} circle at ${mouseX}px ${mouseY}px,
-          var(--blue-500),
-          transparent 80%
-        )
-      `,
-        }}
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setVisible(true)}
         onMouseLeave={() => setVisible(false)}

@@ -67,7 +67,7 @@ interface BreadcrumbGeneratorProps {
  * Provides intelligent breadcrumb navigation with collapsible middle segments
  */
 export function BreadcrumbGenerator({
-  className = "px-4 py-2  backdrop-blur-sm border-b border-gray-100 max-w-7xl mx-auto w-full",
+  className = "px-4 py-2  backdrop-blur-sm border-b border-gray-100  mx-auto w-full bg-white",
   showHomeIcon = BREADCRUMB_CONFIG.homeIcon,
   maxSegments = BREADCRUMB_CONFIG.maxVisibleSegments,
   excludedPaths = BREADCRUMB_CONFIG.excludedPaths,
@@ -102,8 +102,8 @@ export function BreadcrumbGenerator({
   }
 
   return (
-    <nav aria-label="Breadcrumb navigation" className={className}>
-      <Breadcrumb>
+    <nav aria-label="Breadcrumb navigation " className={className}>
+      <Breadcrumb className="mx-auto max-w-7xl">
         <BreadcrumbList>
           {/* Home Link */}
           <BreadcrumbItem>

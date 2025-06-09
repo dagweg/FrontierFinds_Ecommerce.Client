@@ -4,7 +4,7 @@ import { ProductImageResult, ProductResult } from "@/types/product.types";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import ZoomImage from "@/components/custom/zoom-image";
+import AmazonZoomImage from "@/components/custom/enhanced-zoom-image";
 import { useMemo } from "react";
 
 interface ProductImageGalleryProps {
@@ -47,68 +47,80 @@ export function ProductImageGallery({
   }, [images]);
 
   const fallbackImage = "https://imgur.com/zVWz723.jpg";
-
   return (
-    <div className="flex gap-6">
-      {/* Thumbnail Strip */}
-      <div className="flex flex-col gap-3 w-24">
-        {imageList.map(({ key, image, label }) => (
+    <div className="w-full max-w-7xl mx-auto">
+      <div className="flex gap-4 lg:gap-6">
+        {/* Thumbnail Strip */}
+        <div className="flex flex-col gap-3 w-20 lg:w-24 flex-shrink-0">
+          {imageList.map(({ key, image, label }) => (
+            <motion.div
+              key={key}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={cn(
+                "relative group cursor-pointer rounded-xl overflow-hidden border-2 transition-all duration-200",
+                selectedImage?.url === image.url
+                  ? "border-blue-500 ring-2 ring-blue-500/20"
+                  : "border-gray-200 hover:border-gray-300"
+              )}
+            >
+              <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100">
+                <Image
+                  src={image.url || fallbackImage}
+                  alt={`${productName} - ${label}`}
+                  width={100}
+                  height={100}
+                  className="w-full h-full object-contain p-2"
+                  onClick={() => onImageSelect(image)}
+                />
+              </div>
+              <div className="absolute inset-x-0 bottom-0 bg-black/50 text-white text-xs p-1 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                {label}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Main Image with Amazon-style Zoom */}
+        <div className="flex-1 min-w-0 sticky top-20 h-fit">
           <motion.div
-            key={key}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={cn(
-              "relative group cursor-pointer rounded-xl overflow-hidden border-2 transition-all duration-200",
-              selectedImage?.url === image.url
-                ? "border-blue-500 ring-2 ring-blue-500/20"
-                : "border-gray-200 hover:border-gray-300"
-            )}
+            key={selectedImage?.url}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="relative"
           >
-            <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100">
-              <Image
-                src={image.url || fallbackImage}
-                alt={`${productName} - ${label}`}
-                width={100}
-                height={100}
-                className="w-full h-full object-contain p-2"
-                onClick={() => onImageSelect(image)}
-              />
-            </div>
-            <div className="absolute inset-x-0 bottom-0 bg-black/50 text-white text-xs p-1 text-center opacity-0 group-hover:opacity-100 transition-opacity">
-              {label}
-            </div>
+            <AmazonZoomImage
+              src={selectedImage?.url || fallbackImage}
+              width={500}
+              height={500}
+              className="object-contain p-4"
+              alt={productName}
+              zoomFactor={2.5}
+              containerClassName="w-full justify-start"
+              zoomWindowSize={400}
+              lensSize={120}
+              showZoomText={true}
+            />
+
+            {/* Image Counter */}
+            {imageList.length > 1 && (
+              <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm z-20">
+                {imageList.findIndex(
+                  (img) => img.image.url === selectedImage?.url
+                ) + 1}{" "}
+                / {imageList.length}
+              </div>
+            )}
           </motion.div>
-        ))}
+        </div>
       </div>
 
-      {/* Main Image */}
-      <div className="flex-1 sticky top-20 h-fit">
-        <motion.div
-          key={selectedImage?.url}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
-          className="relative  rounded-2xl overflow-hidden "
-        >
-          <ZoomImage
-            src={selectedImage?.url || fallbackImage}
-            width={600}
-            height={600}
-            className="w-full h-[600px] object-contain p-8"
-            alt={productName}
-            zoomFactor={2.5}
-          />
-
-          {/* Image Counter */}
-          {imageList.length > 1 && (
-            <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
-              {imageList.findIndex(
-                (img) => img.image.url === selectedImage?.url
-              ) + 1}{" "}
-              / {imageList.length}
-            </div>
-          )}
-        </motion.div>
+      {/* Mobile-friendly note */}
+      <div className="mt-4 lg:hidden">
+        <p className="text-sm text-gray-600 text-center">
+          Tap and hold on the image to zoom on mobile devices
+        </p>
       </div>
     </div>
   );

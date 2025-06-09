@@ -62,7 +62,7 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br bg-white/80">
       <div className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -101,9 +101,9 @@ export default function ProductDetailPage() {
           isMyProduct={isMyProduct}
           onReviewSubmit={handleReviewSubmit}
           productSlug={slug || ""}
-        />
+        />{" "}
         {/* Related Products */}
-        <RelatedProducts />
+        <RelatedProducts currentProduct={product} />
         {/* Additional Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
           <DeliveryInfo />

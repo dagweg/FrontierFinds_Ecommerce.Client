@@ -11,6 +11,7 @@ interface ZoomImageProps {
   height: number;
   zoomFactor?: number;
   className?: string;
+  containerClassName?: string;
 }
 
 const ZoomImage: React.FC<ZoomImageProps> = ({
@@ -18,14 +19,15 @@ const ZoomImage: React.FC<ZoomImageProps> = ({
   alt,
   width,
   height,
-  zoomFactor = 2,
+  zoomFactor = 2.5,
   className,
+  containerClassName,
 }) => {
   const [isZoomed, setIsZoomed] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const imageRef = useRef<HTMLDivElement>(null);
 
-  const zoomWindowSize = 200; // Size of the zoom window in pixels
+  const zoomWindowSize = Math.min(width, height); // Size of the zoom window in pixels
 
   const handleMouseEnter = () => {
     setIsZoomed(true);
@@ -34,7 +36,6 @@ const ZoomImage: React.FC<ZoomImageProps> = ({
   const handleMouseLeave = () => {
     setIsZoomed(false);
   };
-
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!imageRef.current) return;
 
@@ -48,62 +49,72 @@ const ZoomImage: React.FC<ZoomImageProps> = ({
     });
   };
 
-  // Calculate zoom window position to follow mouse
-  const getZoomPosition = () => {
-    if (!imageRef.current) return { left: 0, top: 0 };
+  // Calculate the overlay position for the lens effect
+  const getLensPosition = () => {
+    const lensSize = 120; // Size of the lens overlay
+    let left = position.x - lensSize / 2;
+    let top = position.y - lensSize / 2;
 
-    const padding = 10; // Space between image and zoom window
+    // Keep lens within image bounds
+    left = Math.max(0, Math.min(left, width - lensSize));
+    top = Math.max(0, Math.min(top, height - lensSize));
 
-    let left = position.x - zoomWindowSize / 2;
-    let top = position.y - zoomWindowSize / 2;
-
-    // Keep zoom window within container bounds
-    if (left < 0) {
-      left = padding;
-    } else if (left + zoomWindowSize > width) {
-      left = width - zoomWindowSize - padding;
-    }
-
-    if (top < 0) {
-      top = padding;
-    } else if (top + zoomWindowSize > height) {
-      top = height - zoomWindowSize - padding;
-    }
-
-    return { left, top };
+    return { left, top, lensSize };
   };
 
-  const zoomPos = getZoomPosition();
+  const lensPos = getLensPosition();
 
   // Calculate the background position for the zoomed image
-  const backgroundX = position.x * zoomFactor - zoomWindowSize / 2;
-  const backgroundY = position.y * zoomFactor - zoomWindowSize / 2;
+  const backgroundX =
+    (position.x / width) * (width * zoomFactor - zoomWindowSize);
+  const backgroundY =
+    (position.y / height) * (height * zoomFactor - zoomWindowSize);
 
   return (
-    <div
-      ref={imageRef}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onMouseMove={handleMouseMove}
-      className="relative overflow-hidden cursor-zoom-in flex"
-      style={{ width: `${width}px`, height: `${height}px` }}
-    >
-      <Image
-        src={src}
-        alt={alt}
-        width={width}
-        height={height}
-        className={`object-contain ${className}`}
-      />
+    <div className={`flex gap-4 ${containerClassName}`}>
+      {/* Main Image Container */}
+      <div
+        ref={imageRef}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onMouseMove={handleMouseMove}
+        className="relative overflow-hidden cursor-crosshair border border-gray-200 rounded-lg"
+        style={{ width: `${width}px`, height: `${height}px` }}
+      >
+        <Image
+          src={src}
+          alt={alt}
+          width={width}
+          height={height}
+          className={`object-contain ${className}`}
+        />
+
+        {/* Lens Overlay */}
+        {isZoomed && (
+          <div
+            className="absolute border-2 border-gray-400 bg-white bg-opacity-30 pointer-events-none"
+            style={{
+              width: `${lensPos.lensSize}px`,
+              height: `${lensPos.lensSize}px`,
+              left: `${lensPos.left}px`,
+              top: `${lensPos.top}px`,
+              boxShadow: "0 0 0 1000px rgba(0, 0, 0, 0.3)",
+            }}
+          />
+        )}
+      </div>
+
+      {/* Zoom Window */}
       {isZoomed && (
         <div
-          className="absolute w-[200px] h-[200px] object-fill rounded-md border border-gray-200  bg-no-repeat shadow-md pointer-events-none"
+          className="border border-gray-300 rounded-lg bg-white shadow-lg overflow-hidden"
           style={{
+            width: `${zoomWindowSize}px`,
+            height: `${zoomWindowSize}px`,
             backgroundImage: `url(${src})`,
             backgroundSize: `${width * zoomFactor}px ${height * zoomFactor}px`,
             backgroundPosition: `-${backgroundX}px -${backgroundY}px`,
-            left: `${zoomPos.left}px`,
-            top: `${zoomPos.top}px`,
+            backgroundRepeat: "no-repeat",
           }}
         />
       )}

@@ -7,10 +7,8 @@ import {
   Scope_One,
 } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/custom/nav-bar";
-import Footer from "@/components/custom/footer";
-import { BreadcrumbGenerator } from "@/components/custom/breadcrumb-generator";
 import { SessionProvider } from "@/components/providers/session-provider";
+import { LayoutProvider } from "@/components/providers/layout-provider";
 import { Suspense } from "react";
 import { CircleDashed } from "lucide-react";
 
@@ -58,16 +56,12 @@ export default function RootLayout({
         <SessionProvider>
           <Suspense
             fallback={
-              <div className="min-h-full h-screen w-full flex items-center">
+              <div className="min-h-full h-screen w-full flex items-center justify-center">
                 <CircleDashed size={25} className="animate-spin duration-100" />
               </div>
             }
           >
-            <Navbar />
-            <BreadcrumbGenerator />
-
-            {children}
-            <Footer />
+            <LayoutProvider>{children}</LayoutProvider>
           </Suspense>
         </SessionProvider>
       </body>

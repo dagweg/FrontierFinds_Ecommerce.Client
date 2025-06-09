@@ -1,6 +1,7 @@
 "use client";
 import Button from "@/components/custom/button";
 import { HoverBorderGradientButton } from "@/components/custom/hover-border-gradient-button";
+import Logo from "@/components/custom/logo";
 import { useSession } from "@/components/providers/session-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -94,28 +95,15 @@ function Navbar() {
     <section className="border-b border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-[50] h-[80px] transition-all duration-200">
       <nav className="flex justify-between p-4 mx-auto h-full items-center max-w-7xl">
         {" "}
-        {/* Enhanced Logo */}
+        {/* Enhanced Logo */}{" "}
         <Link
           href={"/"}
           className="text-xl font-bold dark:text-white text-center ml-4 focus:outline-none inline-flex items-center gap-3  group transition-all duration-200 flex-shrink-0 min-w-fit"
         >
-          {/* <div className="relative">
-            <Image
-              src={"/favicon-main.png"}
-              width={50}
-              height={50}
-              alt="Frontier Finds Logo"
-              className="rounded-sm dark:invert w-[40px] h-[40px]  transition-transform duration-300"
-            />
-          </div>{" "} */}
-          <span className="bg-gradient-to-r from-indigo-500 to-indigo-900 rotate-180 bg-clip-text text-transparent font-futurex text-2xl whitespace-nowrap  flex items-center h-fit  ">
-            <span className="flex flex-col space-y-[-20px]">
-              <span>&lt;&gt;&gt;</span>
-
-              <span>&lt;&gt;&gt;</span>
-              <span className="">U</span>
-            </span>
-          </span>
+          <Logo
+            size="md"
+            className="group-hover:scale-105 transition-transform duration-300"
+          />
         </Link>
         {/* Enhanced Search Bar */}
         <div className="hidden md:flex justify-center items-center relative w-fit max-w-lg mx-4 flex-1">
